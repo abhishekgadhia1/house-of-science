@@ -109,10 +109,8 @@ const AiExperiment: React.FC = () => {
                             <p className="tracking-widest text-xs">AWAITING DATA STREAM</p>
                         </div>
                     )}
-                    {error && <p className="text-red-400">ERROR: {error}</p>}
-
                     
-                  
+                    {error && <p className="text-red-400">{">>"} ERROR: {error}</p>}
                     
                     {experiment && (
                         <div className="prose prose-invert prose-p:text-slate-400 prose-headings:text-indigo-400 prose-strong:text-white max-w-none">

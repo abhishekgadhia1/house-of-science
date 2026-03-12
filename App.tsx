@@ -28,7 +28,6 @@ const App: React.FC = () => {
         return (
           <Hero 
             onCtaClick={() => handleNavigate(NavSection.WORKSHOPS)} 
-            onSecondaryClick={() => handleNavigate(NavSection.AI_LAB)}
             onSearchNavigate={handleWorkshopNavigate}
           />
         );

@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowRight, Terminal, Search } from 'lucide-react';
+import { ArrowRight, Search } from 'lucide-react';
 import { RAW_WORKSHOPS } from '../data/curriculum';
 
 interface HeroProps {
   onCtaClick: () => void;
-  onSecondaryClick: () => void;
   onSearchNavigate: (subject?: string, query?: string) => void;
 }
 
-const Hero: React.FC<HeroProps> = ({ onCtaClick, onSecondaryClick, onSearchNavigate }) => {
+const Hero: React.FC<HeroProps> = ({ onCtaClick, onSearchNavigate }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [results, setResults] = useState<any[]>([]);
   const [isFocused, setIsFocused] = useState(false);
@@ -71,10 +70,6 @@ const Hero: React.FC<HeroProps> = ({ onCtaClick, onSecondaryClick, onSearchNavig
                   <button onClick={onCtaClick} className="bg-slate-900 text-white px-8 py-4 rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-lg hover:shadow-xl flex items-center">
                     Browse Modules
                     <ArrowRight className="ml-2 w-4 h-4" />
-                  </button>
-                  <button onClick={onSecondaryClick} className="px-8 py-4 rounded-lg text-xs font-bold uppercase tracking-widest text-indigo-600 hover:bg-indigo-50 transition-all border border-transparent hover:border-indigo-100 flex items-center">
-                    <Terminal className="mr-2 w-4 h-4" />
-                    AI Lab
                   </button>
               </div>
         </div>
@@ -147,9 +142,6 @@ const Hero: React.FC<HeroProps> = ({ onCtaClick, onSecondaryClick, onSearchNavig
                         ) : (
                             <div className="p-6 text-center">
                                 <p className="text-xs font-bold text-slate-900 mb-1">No Protocols Found</p>
-                                <button onClick={onSecondaryClick} className="text-[10px] font-bold text-indigo-600 hover:underline">
-                                    Launch AI Lab &rarr;
-                                </button>
                             </div>
                         )}
                     </div>
