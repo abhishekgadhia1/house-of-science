@@ -5,9 +5,10 @@ import { Menu, X } from 'lucide-react';
 interface NavBarProps {
   currentSection: NavSection;
   onNavigate: (section: NavSection) => void;
+  onEnrolClick: () => void;
 }
 
-const NavBar: React.FC<NavBarProps> = ({ currentSection, onNavigate }) => {
+const NavBar: React.FC<NavBarProps> = ({ currentSection, onNavigate, onEnrolClick }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const navItems = [
@@ -18,6 +19,11 @@ const NavBar: React.FC<NavBarProps> = ({ currentSection, onNavigate }) => {
 
   const handleNavClick = (section: NavSection) => {
     onNavigate(section);
+    setIsOpen(false);
+  };
+
+  const handleEnrolClick = () => {
+    onEnrolClick();
     setIsOpen(false);
   };
 
@@ -55,7 +61,10 @@ const NavBar: React.FC<NavBarProps> = ({ currentSection, onNavigate }) => {
               ))}
             </div>
             
-            <button className="bg-black text-white px-8 py-3 rounded-none text-xs font-bold uppercase tracking-widest hover:bg-indigo-600 transition-all duration-300 shadow-md hover:shadow-lg">
+            <button 
+              onClick={handleEnrolClick}
+              className="bg-black text-white px-8 py-3 rounded-none text-xs font-bold uppercase tracking-widest hover:bg-indigo-600 transition-all duration-300 shadow-md hover:shadow-lg"
+            >
               ENROL
             </button>
           </div>
@@ -89,7 +98,10 @@ const NavBar: React.FC<NavBarProps> = ({ currentSection, onNavigate }) => {
                 {item.label}
               </button>
             ))}
-            <button className="w-full bg-black text-white py-4 text-sm font-bold uppercase tracking-widest mt-8">
+            <button 
+              onClick={handleEnrolClick}
+              className="w-full bg-black text-white py-4 text-sm font-bold uppercase tracking-widest mt-8"
+            >
               ENROL
             </button>
           </div>

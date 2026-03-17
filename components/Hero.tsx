@@ -57,14 +57,10 @@ const Hero: React.FC<HeroProps> = ({ onCtaClick, onSearchNavigate }) => {
               </div>
               
               <h1 className="text-5xl md:text-7xl font-display font-bold text-slate-900 tracking-tight leading-[1.05]">
-                Making <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Science</span> <br />
-                Tangible.
+                House <br />
+                of <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Science.</span>
               </h1>
-              
-              <p className="text-lg text-slate-600 max-w-lg font-normal leading-relaxed border-l-2 border-indigo-200 pl-6">
-                House of Science is not a classroom. It is a research facility for the next generation of innovators.
-              </p>
 
               <div className="flex items-center gap-4 pt-4">
                   <button onClick={onCtaClick} className="bg-slate-900 text-white px-8 py-4 rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-lg hover:shadow-xl flex items-center">

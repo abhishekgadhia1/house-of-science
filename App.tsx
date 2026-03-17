@@ -6,10 +6,12 @@ import Workshops from './components/Workshops';
 import AiExperiment from './components/AiExperiment';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
+import EnrollmentModal from './components/EnrollmentModal';
 
 const App: React.FC = () => {
   const [currentSection, setCurrentSection] = useState<NavSection>(NavSection.HOME);
   const [workshopFilters, setWorkshopFilters] = useState<{subject?: string, query?: string}>({});
+  const [isEnrollModalOpen, setIsEnrollModalOpen] = useState(false);
 
   const handleNavigate = (section: NavSection) => {
     // Clear filters when standard navigation occurs to ensure fresh state (search text becomes null and void)
@@ -48,7 +50,11 @@ const App: React.FC = () => {
 
   return (
     <div className="h-full flex flex-col bg-slate-50 overflow-hidden">
-      <NavBar currentSection={currentSection} onNavigate={handleNavigate} />
+      <NavBar 
+        currentSection={currentSection} 
+        onNavigate={handleNavigate} 
+        onEnrolClick={() => setIsEnrollModalOpen(true)}
+      />
       
       {/* Main Content Area */}
       <main className="flex-grow relative overflow-hidden pt-20">
@@ -58,6 +64,11 @@ const App: React.FC = () => {
           {currentSection !== NavSection.HOME && <Footer />}
         </div>
       </main>
+
+      <EnrollmentModal 
+        isOpen={isEnrollModalOpen} 
+        onClose={() => setIsEnrollModalOpen(false)} 
+      />
     </div>
   );
 };
