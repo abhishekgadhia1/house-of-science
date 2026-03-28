@@ -57,7 +57,7 @@ const App: React.FC = () => {
       />
       
       {/* Main Content Area */}
-      <main className="flex-grow relative overflow-hidden pt-20">
+      <main className="flex-grow relative overflow-hidden pt-16 md:pt-20">
         <div className="h-full w-full overflow-y-auto custom-scrollbar">
           {renderContent()}
           {/* Footer shows at bottom of content flow, except potentially on Home if design dictates, but here we include it always at bottom of scroll */}

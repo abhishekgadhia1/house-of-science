@@ -38,7 +38,7 @@ const Hero: React.FC<HeroProps> = ({ onCtaClick, onSearchNavigate }) => {
   const showDropdown = searchTerm.length > 1;
 
   return (
-    <div className="relative h-full flex items-center overflow-hidden bg-gradient-to-br from-indigo-50 via-white to-purple-50 min-h-[600px]">
+    <div className="relative h-full flex items-center overflow-hidden bg-gradient-to-br from-indigo-50 via-white to-purple-50 min-h-[500px] md:min-h-[600px]">
       
       {/* Dynamic Background */}
       <div className="absolute inset-0 pointer-events-none">
@@ -47,23 +47,23 @@ const Hero: React.FC<HeroProps> = ({ onCtaClick, onSearchNavigate }) => {
         <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-purple-200/40 rounded-full blur-[100px] mix-blend-multiply opacity-60"></div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-12 w-full relative z-10 grid lg:grid-cols-2 gap-16 items-center h-full pt-20 lg:pt-0">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-12 w-full relative z-10 grid lg:grid-cols-2 gap-4 md:gap-16 items-center h-full">
         
         {/* Left Column: Typography */}
-        <div className="space-y-8 animate-slide-up">
-              <div className="flex items-center space-x-4">
+        <div className="space-y-6 md:space-y-8 animate-slide-up order-1 flex flex-col items-center text-center md:items-start md:text-left">
+              <div className="flex items-center justify-center md:justify-start space-x-4">
                  <div className="h-px w-12 bg-indigo-600"></div>
-                 <span className="text-indigo-600 font-mono text-xs tracking-widest uppercase font-bold">Est. 2025</span>
+                 <span className="text-indigo-600 font-mono text-[10px] md:text-xs tracking-widest uppercase font-bold">Est. 2025</span>
               </div>
               
-              <h1 className="text-5xl md:text-7xl font-display font-bold text-slate-900 tracking-tight leading-[1.05]">
+              <h1 className="text-3xl md:text-7xl font-display font-bold text-slate-900 tracking-tight leading-[1.05]">
                 House <br />
                 of <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Science.</span>
               </h1>
 
-              <div className="flex items-center gap-4 pt-4">
-                  <button onClick={onCtaClick} className="bg-slate-900 text-white px-8 py-4 rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-lg hover:shadow-xl flex items-center">
+              <div className="flex items-center gap-4 pt-1 md:pt-4">
+                  <button onClick={onCtaClick} className="bg-slate-900 text-white px-5 py-2.5 md:px-8 md:py-4 rounded-lg text-[10px] md:text-xs font-bold uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-lg hover:shadow-xl flex items-center">
                     Browse Modules
                     <ArrowRight className="ml-2 w-4 h-4" />
                   </button>
@@ -71,10 +71,10 @@ const Hero: React.FC<HeroProps> = ({ onCtaClick, onSearchNavigate }) => {
         </div>
 
         {/* Right Column: Search Interface */}
-        <div className="relative w-full max-w-md mx-auto lg:mx-0 lg:ml-auto animate-fade-in z-50 lg:-translate-y-12" style={{ animationDelay: '0.2s' }}>
+        <div className="hidden md:block relative w-full max-w-[280px] md:max-w-md mx-auto lg:mx-0 lg:ml-auto animate-fade-in z-50 lg:-translate-y-12 order-2 -mt-4 md:mt-0" style={{ animationDelay: '0.2s' }}>
              
              {/* Search Card Container */}
-             <div className="relative">
+             <div className="relative scale-90 md:scale-100 origin-top md:origin-center">
                  {/* Main Input Section */}
                  <div className={`bg-white/90 backdrop-blur-xl shadow-2xl transition-all duration-300 ring-1 ring-white/60 relative z-20 ${
                     showDropdown ? 'rounded-t-2xl rounded-b-none' : 'rounded-2xl'

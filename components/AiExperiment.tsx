@@ -54,26 +54,26 @@ const AiExperiment: React.FC = () => {
   };
 
   return (
-    <div className="bg-slate-50 py-12 min-h-full flex flex-col items-center justify-center relative overflow-hidden">
+    <div className="bg-slate-50 py-8 md:py-12 min-h-full flex flex-col items-center justify-center relative overflow-hidden">
       {/* Background Decor */}
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-50">
          <div className="absolute top-0 left-0 w-96 h-96 bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
          <div className="absolute top-0 right-0 w-96 h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
       </div>
 
-      <div className="max-w-6xl w-full mx-auto px-6 lg:px-12 animate-slide-up relative z-10">
-        <div className="flex items-center mb-10 space-x-3">
+      <div className="max-w-6xl w-full mx-auto px-6 md:px-6 lg:px-12 animate-slide-up relative z-10">
+        <div className="flex items-center mb-6 md:mb-10 space-x-3">
              <div className="p-2 bg-indigo-100 rounded-lg">
                 <Activity className="text-indigo-600 w-6 h-6" />
              </div>
-             <h2 className="text-3xl md:text-4xl font-display font-bold text-slate-900 tracking-tight">
+             <h2 className="text-2xl md:text-4xl font-display font-bold text-slate-900 tracking-tight">
                 AI Research <span className="text-slate-400">Console</span>
              </h2>
         </div>
 
-        <div className="grid lg:grid-cols-12 gap-0 border border-slate-200 shadow-2xl rounded-xl overflow-hidden h-[600px] bg-white">
+        <div className="grid lg:grid-cols-12 gap-0 border border-slate-200 shadow-2xl rounded-xl overflow-hidden h-[500px] md:h-[600px] bg-white">
             {/* Input Section - Light Grey */}
-            <div className="lg:col-span-5 p-8 bg-slate-50 border-b lg:border-b-0 lg:border-r border-slate-200 flex flex-col">
+            <div className="lg:col-span-5 p-6 md:p-8 bg-slate-50 border-b lg:border-b-0 lg:border-r border-slate-200 flex flex-col">
                 <form onSubmit={handleGenerate} className="h-full flex flex-col">
                     <label className="text-xs font-mono text-indigo-600 mb-4 block tracking-widest font-bold">
                         // INPUT PARAMETERS
@@ -96,7 +96,7 @@ const AiExperiment: React.FC = () => {
             </div>
 
             {/* Output Section - Dark Contrast */}
-            <div className="lg:col-span-7 p-8 relative bg-slate-900 text-slate-300">
+            <div className="lg:col-span-7 p-6 md:p-8 relative bg-slate-900 text-slate-300">
                 <div className="absolute top-4 right-4 flex space-x-2">
                     <div className="w-2.5 h-2.5 bg-slate-700 rounded-full"></div>
                     <div className="w-2.5 h-2.5 bg-slate-700 rounded-full"></div>

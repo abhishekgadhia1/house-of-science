@@ -4,15 +4,15 @@ import { ArrowUpRight } from 'lucide-react';
 
 const Contact: React.FC = () => {
   return (
-    <div className="bg-gradient-to-b from-slate-50 to-indigo-50/30 py-12 min-h-full flex flex-col">
-      <div className="max-w-7xl mx-auto px-6 lg:px-12 flex-grow flex flex-col justify-center animate-fade-in">
-        <div className="grid md:grid-cols-2 gap-16">
+    <div className="bg-gradient-to-b from-slate-50 to-indigo-50/30 py-8 md:py-12 min-h-full flex flex-col">
+      <div className="max-w-7xl mx-auto px-6 md:px-6 lg:px-12 flex-grow flex flex-col justify-center animate-fade-in">
+        <div className="grid md:grid-cols-2 gap-12 md:gap-16">
           
           <div>
-            <h2 className="text-4xl md:text-5xl font-display font-bold text-slate-900 tracking-tight mb-6">
+            <h2 className="text-3xl md:text-5xl font-display font-bold text-slate-900 tracking-tight mb-4 md:mb-6">
               Join The <br/> <span className="text-indigo-600">House.</span>
             </h2>
-            <p className="text-slate-600 text-lg max-w-md mb-12 font-normal leading-relaxed">
+            <p className="text-slate-600 text-base md:text-lg max-w-md mb-8 md:mb-12 font-normal leading-relaxed">
               From single-module workshops for curious individuals to full-scale science curriculums for schools. We adapt to your requirements.
             </p>
 
@@ -42,8 +42,8 @@ const Contact: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-white p-8 border border-slate-100 rounded-xl shadow-lg shadow-indigo-100/50">
-            <form className="space-y-6">
+          <div className="bg-white p-6 md:p-8 border border-slate-100 rounded-xl shadow-lg shadow-indigo-100/50">
+            <form className="space-y-4 md:space-y-6">
                 <div>
                    <label className="block text-xs font-mono text-slate-500 uppercase tracking-widest mb-2 font-semibold">Name</label>
                    <input type="text" className="w-full bg-slate-50 border border-slate-200 p-4 text-slate-900 focus:border-indigo-600 focus:ring-0 transition-colors outline-none rounded-md" placeholder="Full Name" />

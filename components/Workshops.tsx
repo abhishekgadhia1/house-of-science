@@ -160,6 +160,16 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
 
   }, [workshopsData, viewMode, selectedSubject, selectedGrade, selectedAgeRange, searchQuery]);
 
+  // Reset scroll to top when subject changes (Mobile)
+  useEffect(() => {
+    if (window.innerWidth < 768) {
+      const scrollContainer = document.querySelector('main > div.overflow-y-auto');
+      if (scrollContainer) {
+        scrollContainer.scrollTo({ top: 0, behavior: 'auto' });
+      }
+    }
+  }, [selectedSubject]);
+
   // Auto-close success modal after 3 seconds
   useEffect(() => {
     if (enrollSuccess) {
@@ -235,7 +245,11 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
     const isComingSoon = workshop.comingSoon;
     
     return (
-      <div key={workshop.id} className={`group relative bg-white border border-slate-200 p-5 flex flex-col rounded-lg transition-all duration-300 ${isComingSoon ? 'opacity-60 grayscale cursor-not-allowed bg-slate-50' : 'hover:border-indigo-600/50 hover:shadow-xl hover:shadow-indigo-100'}`}>
+      <div key={workshop.id} className={`group relative bg-white border p-4 md:p-5 flex flex-col rounded-lg transition-all duration-300 ${
+        isComingSoon 
+          ? 'opacity-60 grayscale cursor-not-allowed bg-slate-50 border-slate-200' 
+          : 'border-indigo-600/20 shadow-[0_10px_40px_-10px_rgba(79,70,229,0.15)] hover:shadow-[0_20px_50px_-12px_rgba(79,70,229,0.25)] hover:border-indigo-600/40 active:scale-[0.98] md:shadow-none md:border-slate-200 md:hover:shadow-xl md:hover:shadow-indigo-100 md:hover:border-indigo-600/50 md:active:scale-100'
+      }`}>
         
         {/* Overlay for Coming Soon */}
         {isComingSoon && (
@@ -248,8 +262,8 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
           </div>
         )}
 
-        <div className="mb-4 flex justify-between items-start">
-          <div className={`p-2 rounded-md transition-colors duration-300 ${isComingSoon ? 'bg-slate-100 text-slate-400' : 'bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white'}`}>
+        <div className="mb-3 md:mb-4 flex justify-between items-start">
+          <div className={`p-1.5 md:p-2 rounded-md transition-colors duration-300 ${isComingSoon ? 'bg-slate-100 text-slate-400' : 'bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white'}`}>
               <CategoryIcon category={workshop.category} title={workshop.title} />
           </div>
           <span className={`font-mono text-[10px] transition-colors uppercase font-semibold tracking-wider bg-slate-50 px-2 py-1 rounded ${isComingSoon ? 'text-slate-300' : 'text-slate-400 group-hover:text-indigo-600'}`}>
@@ -257,8 +271,8 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
           </span>
         </div>
 
-        <div className="flex-grow mb-4">
-          <h4 className={`text-base font-bold mb-2 transition-colors ${isComingSoon ? 'text-slate-500' : 'text-slate-900 group-hover:text-indigo-700'}`}>
+        <div className="flex-grow mb-3 md:mb-4">
+          <h4 className={`text-base font-bold mb-1 md:mb-2 transition-colors ${isComingSoon ? 'text-slate-500' : 'text-slate-900 group-hover:text-indigo-700'}`}>
             {workshop.title}
           </h4>
           <p className="text-slate-500 text-xs leading-relaxed">
@@ -318,15 +332,15 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
       <div className="flex-grow flex flex-col md:flex-row h-full">
         
         {/* Sidebar */}
-        <div className="w-full md:w-64 lg:w-72 bg-white/50 border-b md:border-b-0 md:border-r border-slate-200 p-6 md:p-8 flex flex-col flex-shrink-0 animate-fade-in backdrop-blur-sm">
-          <div className="mb-6">
-            <h2 className="text-indigo-600 font-mono text-xs tracking-widest uppercase font-bold mb-2">/ Select Subject</h2>
-            <h3 className="text-xl font-display font-bold text-slate-900 tracking-tight">
+        <div className="w-full md:w-64 lg:w-72 bg-white md:bg-white/50 border-b md:border-b-0 md:border-r border-slate-200 p-4 md:p-8 flex flex-col flex-shrink-0 animate-fade-in backdrop-blur-sm sticky top-0 z-40">
+          <div className="mb-3 md:mb-6">
+            <h2 className="text-indigo-600 font-mono text-[9px] md:text-xs tracking-widest uppercase font-bold mb-0.5 md:mb-2 opacity-70">/ Select Subject</h2>
+            <h3 className="text-base md:text-xl font-display font-bold text-slate-900 tracking-tight">
                 Curriculum
             </h3>
           </div>
           
-          <div className="space-y-2 flex-grow overflow-x-auto md:overflow-visible flex md:flex-col gap-2 md:gap-0 pb-2 md:pb-0 custom-scrollbar">
+          <div className="flex-grow md:overflow-visible grid grid-cols-3 md:flex md:flex-col gap-1.5 md:gap-0 pb-1 md:pb-0">
             {subjects.map((sub) => (
               <button
                 key={sub.id}
@@ -334,10 +348,12 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                    setSelectedSubject(sub.id);
                    setSearchQuery(''); // Clear search on subject change
                 }}
-                className={`flex items-center justify-between w-full text-left px-4 py-3 text-sm font-medium transition-all duration-300 rounded-md ${
+                className={`w-full items-center justify-center md:justify-between text-center md:text-left px-1 py-1.5 md:px-4 md:py-3 text-[10px] md:text-sm font-mono md:font-medium transition-all duration-300 rounded-md uppercase md:normal-case tracking-tighter md:tracking-normal ${
+                  sub.id === 'Astronomy' ? 'hidden md:flex' : 'flex'
+                } ${
                   selectedSubject === sub.id
                     ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200'
-                    : 'text-slate-500 hover:text-indigo-600 hover:bg-indigo-50'
+                    : 'text-slate-400 md:text-slate-500 hover:text-slate-900 md:hover:text-indigo-600 hover:bg-slate-50 md:hover:bg-indigo-50 border border-indigo-600/20 shadow-[0_10px_40px_-10px_rgba(79,70,229,0.15)] hover:shadow-[0_20px_50px_-12px_rgba(79,70,229,0.25)] hover:border-indigo-600/40 md:border-0 md:shadow-none'
                 }`}
               >
                 <span>{sub.label}</span>
@@ -350,62 +366,62 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
         </div>
 
         {/* Main Content */}
-        <div className="flex-grow p-6 lg:p-8 overflow-y-auto custom-scrollbar bg-slate-50/50 animate-fade-in">
+        <div className="flex-grow p-4 lg:p-8 md:overflow-y-auto custom-scrollbar bg-slate-50/50 animate-fade-in">
           <div className="w-full max-w-[2000px]">
              
              {/* Header Controls */}
-             <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
-                <div className="flex flex-col gap-4 flex-grow">
+             <div className="mb-4 md:mb-8 flex flex-col md:flex-row md:items-end justify-between gap-2 md:gap-6">
+                <div className="flex flex-col gap-2 md:gap-4 flex-grow">
                     
                     {/* View Toggle */}
-                    <div className="flex items-center space-x-2 bg-white border border-slate-200 rounded-lg p-1 w-fit">
+                    <div className="flex items-center space-x-1 md:space-x-2 bg-white border border-slate-200 rounded-lg p-0.5 md:p-1 w-fit">
                          <button 
                             onClick={() => setViewMode('topic')}
-                            className={`flex items-center px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-md transition-all ${
+                            className={`flex items-center px-2.5 md:px-4 py-1 md:py-2 text-[10px] md:text-xs font-bold uppercase tracking-wider rounded-md transition-all ${
                                 viewMode === 'topic' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
                             }`}
                         >
-                            <LayoutGrid className="w-3 h-3 mr-2" />
+                            <LayoutGrid className="w-3 h-3 mr-1 md:mr-2" />
                             By Topic
                         </button>
                         <button 
                             onClick={() => setViewMode('age')}
-                            className={`flex items-center px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-md transition-all ${
+                            className={`flex items-center px-2.5 md:px-4 py-1 md:py-2 text-[10px] md:text-xs font-bold uppercase tracking-wider rounded-md transition-all ${
                                 viewMode === 'age' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
                             }`}
                         >
-                            <Calendar className="w-3 h-3 mr-2" />
+                            <Calendar className="w-3 h-3 mr-1 md:mr-2" />
                             By Age
                         </button>
                         <button 
                             onClick={() => setViewMode('grade')}
-                            className={`flex items-center px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-md transition-all ${
+                            className={`flex items-center px-2.5 md:px-4 py-1 md:py-2 text-[10px] md:text-xs font-bold uppercase tracking-wider rounded-md transition-all ${
                                 viewMode === 'grade' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
                             }`}
                         >
-                            <GraduationCap className="w-3 h-3 mr-2" />
+                            <GraduationCap className="w-3 h-3 mr-1 md:mr-2" />
                             By Grade
                         </button>
                     </div>
 
-                    <div className="flex items-baseline space-x-3">
-                        <h2 className="text-3xl font-display font-bold text-slate-900 tracking-tight">
+                    <div className="flex items-baseline space-x-2 md:space-x-3 pt-2 border-t border-slate-100 md:border-0">
+                        <h2 className="text-[11px] md:text-3xl font-mono md:font-display font-bold text-slate-900 tracking-widest md:tracking-tight uppercase">
                             {getHeaderTitle()}
                         </h2>
-                        <span className="font-mono text-xs text-slate-400 bg-white px-3 py-1 rounded-full border border-slate-200">
-                            {displayedWorkshops.length} MODULES
+                        <span className="font-mono md:font-sans text-[8px] md:text-xs text-slate-400 bg-white px-1.5 md:px-3 py-0.5 md:py-1 rounded-full border border-slate-100">
+                            {displayedWorkshops.length} <span className="md:hidden">UNITS</span><span className="hidden md:inline">MODULES</span>
                         </span>
                     </div>
 
                     {/* Grade Selector Strip (Only visible in Grade Mode) */}
                     {viewMode === 'grade' && (
-                        <div className="flex items-center space-x-2 overflow-x-auto pb-2 pt-1 custom-scrollbar max-w-full px-1">
+                        <div className="flex items-center space-x-2 overflow-x-auto pb-2 pt-1 custom-scrollbar max-w-full">
                             {grades.map(g => (
                                 <button
                                     key={g}
                                     onClick={() => setSelectedGrade(g)}
                                     className={`
-                                      group relative px-3 py-1.5 flex items-center justify-center rounded-md text-[10px] font-bold transition-all duration-300 flex-shrink-0 uppercase tracking-wider border
+                                      group relative px-2 md:px-3 py-1 md:py-1.5 flex items-center justify-center rounded-md text-[10px] font-bold transition-all duration-300 flex-shrink-0 uppercase tracking-wider border
                                       transform active:scale-95
                                       ${
                                         selectedGrade === g 
@@ -422,13 +438,13 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
 
                     {/* Age Selector Strip (Only visible in Age Mode) */}
                     {viewMode === 'age' && (
-                        <div className="flex items-center space-x-2 overflow-x-auto pb-2 pt-1 custom-scrollbar max-w-full px-1">
+                        <div className="flex items-center space-x-2 overflow-x-auto pb-2 pt-1 custom-scrollbar max-w-full">
                             {ageRanges.map((range, idx) => (
                                 <button
                                     key={idx}
                                     onClick={() => setSelectedAgeRange(range)}
                                     className={`
-                                      group relative px-3 py-1.5 flex items-center justify-center rounded-md text-[10px] font-bold transition-all duration-300 flex-shrink-0 uppercase tracking-wider border
+                                      group relative px-2 md:px-3 py-1 md:py-1.5 flex items-center justify-center rounded-md text-[10px] font-bold transition-all duration-300 flex-shrink-0 uppercase tracking-wider border
                                       transform active:scale-95
                                       ${
                                         selectedAgeRange.label === range.label
@@ -447,18 +463,18 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
 
                 {/* Search */}
                 <div className="relative group w-full md:w-80">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
                     <input 
                         type="text" 
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder={getPlaceholder()} 
-                        className="w-full bg-white border border-slate-200 pl-10 pr-4 py-3 text-xs font-mono font-medium text-slate-900 focus:border-indigo-600 focus:ring-0 outline-none transition-all placeholder-slate-400 uppercase tracking-wide rounded-sm shadow-sm"
+                        className="w-full bg-white border border-slate-200 pl-9 pr-4 py-2 md:py-3 text-[10px] md:text-sm font-mono md:font-sans font-medium text-slate-900 focus:border-indigo-600 focus:ring-0 outline-none transition-all placeholder-slate-400 uppercase tracking-wide md:tracking-normal rounded-sm md:rounded-lg shadow-sm"
                     />
                 </div>
              </div>
 
-             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
                 {displayedWorkshops.map(renderWorkshopCard)}
                 {displayedWorkshops.length === 0 && (
                   <div className="col-span-full py-20 text-center border-2 border-dashed border-slate-200 rounded-lg bg-slate-50/50">
