@@ -1,6 +1,7 @@
 
 
 import React, { useState, useMemo, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Workshop } from '../types';
 import { RAW_WORKSHOPS } from '../data/curriculum';
 import { FlaskConical, Atom, Dna, Cpu, Grid, Zap, Magnet, Gauge, Search, Wind, Waves, Sun, Sparkles, Radio, Telescope, Fingerprint, X, CheckCircle2, ChevronRight, LayoutGrid, GraduationCap, BookOpen, Bug, Calendar, Lock, ArrowRight, Phone, User, Sigma } from 'lucide-react';
@@ -62,6 +63,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
   
   // Enrollment State
   const [enrollingWorkshop, setEnrollingWorkshop] = useState<Workshop | null>(null);
+  const [selectedWorkshop, setSelectedWorkshop] = useState<{ title: string, price: string } | null>(null);
   const [enrollSuccess, setEnrollSuccess] = useState(false);
   const [enrollName, setEnrollName] = useState('');
   const [enrollPhone, setEnrollPhone] = useState('');
@@ -111,7 +113,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
         category: raw.cat as any,
         gradeLevel: raw.grade,
         ageGroup: `${raw.grade + 5}-${raw.grade + 6}`,
-        price: `₹${raw.price}`,
+        price: raw.price,
         duration: '3 HOURS',
         image: getCategoryImage(raw.cat),
         experimentCount: raw.exps.length,
@@ -158,6 +160,16 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
 
   }, [workshopsData, viewMode, selectedSubject, selectedGrade, selectedAgeRange, searchQuery]);
 
+  // Auto-close success modal after 3 seconds
+  useEffect(() => {
+    if (enrollSuccess) {
+      const timer = setTimeout(() => {
+        resetEnrollModal();
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [enrollSuccess]);
+
   const getPlaceholder = () => {
     if (viewMode === 'topic') return `SEARCH ${selectedSubject.toUpperCase()} TOPICS...`;
     if (viewMode === 'age') return `SEARCH ${selectedSubject.toUpperCase()} (${selectedAgeRange.label})...`;
@@ -170,16 +182,50 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
       return `Class ${selectedGrade} ${selectedSubject}`;
   };
 
-  const handleEnrollSubmit = (e: React.FormEvent) => {
+  const handleEnrollSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+      // Validation
+      if (!enrollName.trim()) {
+          e.preventDefault();
+          alert("Please enter student name");
+          return;
+      }
+      if (enrollPhone.length !== 10 || !/^\d+$/.test(enrollPhone)) {
+          e.preventDefault();
+          alert("Phone number must be exactly 10 digits");
+          return;
+      }
+
+      // Ensure selectedWorkshop is available and set hidden inputs
+      const form = e.currentTarget;
+      const courseInput = form.elements.namedItem('course') as HTMLInputElement;
+      const priceInput = form.elements.namedItem('price') as HTMLInputElement;
+
+      if (courseInput && priceInput && selectedWorkshop) {
+          // Set values manually as requested
+          courseInput.value = selectedWorkshop.title;
+          priceInput.value = selectedWorkshop.price;
+      } else if (!selectedWorkshop) {
+          e.preventDefault();
+          alert("Error: No workshop selected.");
+          return;
+      }
+
+      // If valid, prevent default, set values, and submit programmatically
+      // to ensure the browser has time to initiate the request before unmounting.
       e.preventDefault();
-      // Simulate API call
+      
+      // Submit the form programmatically to the hidden iframe
+      form.submit();
+      
+      // Show success message in the UI after a small delay
       setTimeout(() => {
           setEnrollSuccess(true);
-      }, 500);
+      }, 100);
   };
 
   const resetEnrollModal = () => {
       setEnrollingWorkshop(null);
+      setSelectedWorkshop(null);
       setEnrollSuccess(false);
       setEnrollName('');
       setEnrollPhone('');
@@ -224,7 +270,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
         <div className="border-t border-slate-100 pt-3 flex items-center justify-between mt-auto">
             <div className="flex flex-col gap-0.5">
                  <span className={`text-sm font-bold ${isComingSoon ? 'text-slate-400 line-through decoration-slate-300' : 'text-indigo-600'}`}>
-                    {workshop.price}
+                    ₹{workshop.price}
                  </span>
                  <button 
                     onClick={(e) => {
@@ -244,6 +290,10 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                     e.stopPropagation();
                     if (!isComingSoon) {
                         setEnrollingWorkshop(workshop);
+                        setSelectedWorkshop({
+                            title: workshop.title,
+                            price: (workshop.price || 0).toString()
+                        });
                         setEnrollSuccess(false);
                     }
                 }}
@@ -430,9 +480,22 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
       </div>
 
       {/* Enrollment Modal */}
-      {enrollingWorkshop && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm animate-fade-in p-4">
-            <div className="bg-white rounded-xl shadow-2xl border border-slate-200 w-full max-w-sm overflow-hidden animate-slide-up relative">
+      <AnimatePresence>
+        {enrollingWorkshop && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6, ease: "easeInOut" }}
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4"
+          >
+              <motion.div 
+                initial={{ scale: 0.95, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.95, opacity: 0, y: 20 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                className="bg-white rounded-xl shadow-2xl border border-slate-200 w-full max-w-sm overflow-hidden relative"
+              >
                 
                 <div className="p-6">
                     {!enrollSuccess ? (
@@ -445,13 +508,22 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                                 </p>
                             </div>
 
-                            <form onSubmit={handleEnrollSubmit} className="space-y-4">
+                            <form 
+                                method="POST" 
+                                action="https://script.google.com/macros/s/AKfycbwh6D4csv_XE_yn1caLnE4zQcoS6lBRT8bCe1eclEjM01g5YcKb0nKI0Jps8vHAhmbO/exec"
+                                target="hidden_enroll_iframe"
+                                onSubmit={handleEnrollSubmit} 
+                                className="space-y-4"
+                            >
+                                <input type="hidden" name="course" />
+                                <input type="hidden" name="price" />
                                 <div>
                                     <label className="block text-[10px] font-mono text-slate-400 uppercase tracking-widest mb-1.5 font-bold">Student Name</label>
                                     <div className="relative">
                                         <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
                                         <input 
                                             type="text" 
+                                            name="name"
                                             required
                                             value={enrollName}
                                             onChange={(e) => setEnrollName(e.target.value)}
@@ -466,6 +538,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                                         <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
                                         <input 
                                             type="tel" 
+                                            name="phone"
                                             required
                                             value={enrollPhone}
                                             onChange={(e) => setEnrollPhone(e.target.value)}
@@ -476,21 +549,41 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                                 </div>
 
                                 <div className="pt-2">
-                                    <button type="submit" className="w-full bg-slate-900 text-white font-bold text-xs uppercase tracking-widest py-3.5 rounded-lg hover:bg-indigo-600 transition-colors shadow-lg">
+                                    <button 
+                                        type="submit" 
+                                        className="w-full bg-slate-900 text-white font-bold text-xs uppercase tracking-widest py-3.5 rounded-lg hover:bg-indigo-600 transition-colors shadow-lg"
+                                    >
                                         Confirm Enrolment
                                     </button>
                                 </div>
                             </form>
                         </>
                     ) : (
-                        <div className="text-center py-8">
-                            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <CheckCircle2 className="w-6 h-6 text-green-600" />
-                            </div>
-                            <h3 className="text-lg font-display font-bold text-slate-900 mb-2">Request Received</h3>
-                            <p className="text-sm text-slate-600 px-4 leading-relaxed">
-                                Thank you for submitting you will be getting a call back in next 5 mins.
-                            </p>
+                        <div className="py-12 flex flex-col items-center text-center">
+                            <motion.div 
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                transition={{ 
+                                    type: "spring",
+                                    stiffness: 260,
+                                    damping: 20,
+                                    delay: 0.1
+                                }}
+                                className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6"
+                            >
+                                <CheckCircle2 className="w-12 h-12 text-green-600" />
+                            </motion.div>
+                            
+                            <motion.div
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.5 }}
+                            >
+                                <h3 className="text-xl font-display font-bold text-slate-900 mb-2">Enrolment confirmed successfully</h3>
+                                <p className="text-sm text-slate-500 max-w-[240px] leading-relaxed mx-auto">
+                                    You will hear from us shortly.
+                                </p>
+                            </motion.div>
                         </div>
                     )}
                 </div>
@@ -503,14 +596,28 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                         Close Window
                      </button>
                 </div>
-            </div>
-        </div>
-      )}
+              </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Experiments List Modal */}
-      {viewingExperiments && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm animate-fade-in p-4">
-          <div className="bg-white rounded-lg shadow-2xl border border-slate-200 w-full max-w-md overflow-hidden animate-slide-up">
+      <AnimatePresence>
+        {viewingExperiments && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6, ease: "easeInOut" }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4"
+          >
+            <motion.div 
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="bg-white rounded-lg shadow-2xl border border-slate-200 w-full max-w-md overflow-hidden"
+            >
             <div className="flex items-center justify-between p-6 border-b border-slate-100">
               <div>
                 <h3 className="text-xl font-display font-bold text-slate-900">{viewingExperiments.title}</h3>
@@ -543,9 +650,12 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                 houseof<span className="font-extrabold text-black">science</span>
               </span>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
+      </AnimatePresence>
+      {/* Hidden iframe for form submission to prevent page navigation */}
+      <iframe name="hidden_enroll_iframe" style={{ display: 'none' }}></iframe>
     </div>
   );
 };

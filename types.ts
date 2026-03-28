@@ -10,7 +10,7 @@ export interface Workshop {
   duration: string;
   image: string;
   category: 'Physics' | 'Chemistry' | 'Biology' | 'Robotics' | 'Electronics' | 'Forensics' | 'Astronomy' | 'Applied Math';
-  price: string;
+  price: number;
   experimentCount: number;
   experimentList: string[];
   comingSoon?: boolean;
