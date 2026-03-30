@@ -98,7 +98,7 @@ const EnrollmentModal: React.FC<EnrollmentModalProps> = ({ isOpen, onClose }) =>
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="relative w-full max-w-4xl bg-white shadow-2xl overflow-hidden flex flex-col md:flex-row h-[90vh] md:h-[85vh] max-h-[800px] rounded-sm md:rounded-none mt-6 md:mt-0"
+          className="relative w-full max-w-4xl bg-white shadow-2xl overflow-hidden flex flex-col md:flex-row h-[90vh] md:h-[85vh] max-h-[800px] rounded-sm md:rounded-none -mt-2 md:mt-0"
         >
           {/* Close Button */}
           <button 
@@ -130,8 +130,8 @@ const EnrollmentModal: React.FC<EnrollmentModalProps> = ({ isOpen, onClose }) =>
           ) : (
             <>
               {/* Left Side: Selection Form */}
-              <div className="w-full md:w-1/2 p-3 md:p-12 border-b md:border-b-0 md:border-r border-slate-100 overflow-y-auto custom-scrollbar">
-                <div className="flex items-center space-x-2 md:space-x-3 mb-1.5 md:mb-8">
+              <div className="w-full md:w-1/2 flex-none p-3 md:p-12 border-b md:border-b-0 md:border-r border-slate-100 overflow-y-auto custom-scrollbar">
+                <div className="flex items-center space-x-2 md:space-x-3 mb-6 md:mb-8">
                   <BookOpen className="w-3 h-3 md:w-6 md:h-6 text-indigo-600" />
                   <h2 className="text-sm md:text-2xl font-display font-bold text-slate-900">Enrolment Details</h2>
                 </div>
@@ -242,7 +242,7 @@ const EnrollmentModal: React.FC<EnrollmentModalProps> = ({ isOpen, onClose }) =>
               </div>
 
               {/* Right Side: Cart Summary */}
-              <div className="w-full md:w-1/2 bg-slate-50/50 md:bg-slate-50 pt-2 px-3 pb-0 md:p-12 flex flex-col overflow-hidden">
+              <div className="w-full md:w-1/2 flex-1 md:flex-none bg-slate-50/50 md:bg-slate-50 pt-2 px-3 pb-10 md:p-12 flex flex-col overflow-hidden min-h-[250px]">
                 <div className="flex items-center justify-between mb-1 md:mb-8">
                   <div className="flex items-center space-x-2 md:space-x-3">
                     <ShoppingCart className="w-3.5 h-3.5 md:w-6 md:h-6 text-slate-900" />
@@ -254,7 +254,7 @@ const EnrollmentModal: React.FC<EnrollmentModalProps> = ({ isOpen, onClose }) =>
                 </div>
 
                 {/* Cart Items List */}
-                <div className="flex-grow overflow-y-auto custom-scrollbar pr-2 mb-1 md:mb-8">
+                <div className="flex-grow overflow-y-auto custom-scrollbar pr-2 mb-4 md:mb-8">
                   {cart.length === 0 ? (
                     <div className="h-full flex flex-col items-center justify-center text-slate-300 md:text-slate-400">
                       <p className="text-[8px] md:text-xs uppercase tracking-widest font-mono md:font-sans font-bold">Cart is Empty</p>

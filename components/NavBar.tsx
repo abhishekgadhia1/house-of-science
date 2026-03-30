@@ -89,7 +89,7 @@ const NavBar: React.FC<NavBarProps> = ({ currentSection, onNavigate, onEnrolClic
               <button
                 key={item.id}
                 onClick={() => handleNavClick(item.id)}
-                className={`text-[13px] font-mono font-bold uppercase tracking-[0.2em] transition-all duration-300 ${
+                className={`text-[12px] font-mono font-bold uppercase tracking-[0.2em] transition-all duration-300 ${
                   currentSection === item.id
                     ? 'text-indigo-600'
                     : 'text-zinc-500 hover:text-black'
@@ -100,7 +100,7 @@ const NavBar: React.FC<NavBarProps> = ({ currentSection, onNavigate, onEnrolClic
             ))}
             <button 
               onClick={handleEnrolClick}
-              className="px-7 py-2.5 border border-slate-900 text-slate-900 text-xs font-mono font-bold uppercase tracking-[0.2em] hover:bg-slate-900 hover:text-white transition-all"
+              className="px-5 py-2 border border-slate-900 text-slate-900 text-[11px] font-mono font-bold uppercase tracking-[0.2em] hover:bg-slate-900 hover:text-white transition-all"
             >
               ENROL
             </button>
