@@ -242,7 +242,7 @@ const EnrollmentModal: React.FC<EnrollmentModalProps> = ({ isOpen, onClose }) =>
               </div>
 
               {/* Right Side: Cart Summary */}
-              <div className="w-full md:w-1/2 flex-1 md:flex-none bg-slate-50/50 md:bg-slate-50 pt-2 px-3 pb-8 md:p-12 flex flex-col overflow-hidden min-h-[250px]">
+              <div className="w-full md:w-1/2 flex-1 md:flex-none bg-slate-50/50 md:bg-slate-50 pt-2 px-3 pb-7 md:p-12 flex flex-col overflow-hidden min-h-[250px]">
                 <div className="flex items-center justify-between mb-1 md:mb-8">
                   <div className="flex items-center space-x-2 md:space-x-3">
                     <ShoppingCart className="w-3.5 h-3.5 md:w-6 md:h-6 text-slate-900" />
@@ -304,7 +304,7 @@ const EnrollmentModal: React.FC<EnrollmentModalProps> = ({ isOpen, onClose }) =>
                   <button
                     onClick={handleSubmit}
                     disabled={cart.length === 0 || !studentName || !mobileNumber}
-                    className="w-full bg-slate-900 md:bg-black text-white font-mono md:font-sans font-bold uppercase tracking-[0.2em] md:tracking-widest py-2 md:py-5 text-xs md:text-xs hover:bg-indigo-600 transition-all disabled:opacity-30 md:disabled:opacity-50 shadow-lg md:shadow-xl"
+                    className="w-full bg-slate-900 md:bg-black text-white font-mono md:font-sans font-bold uppercase tracking-[0.2em] md:tracking-widest py-2 md:py-5 text-xs md:text-xs hover:bg-indigo-600 transition-all disabled:opacity-30 md:disabled:opacity-50 shadow-xl md:shadow-xl"
                   >
                     Complete Enrolment
                   </button>
