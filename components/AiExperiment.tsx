@@ -34,8 +34,8 @@ const AiExperiment: React.FC = () => {
       `;
 
       const streamResult = await ai.models.generateContentStream({
-        model: 'gemini-2.5-flash',
-        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        model: 'gemini-3-flash-preview',
+        contents: prompt,
       });
 
       for await (const chunk of streamResult) {

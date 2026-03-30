@@ -353,7 +353,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                 } ${
                   selectedSubject === sub.id
                     ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200'
-                    : 'text-slate-400 md:text-slate-500 hover:text-slate-900 md:hover:text-indigo-600 hover:bg-slate-50 md:hover:bg-indigo-50 border border-indigo-600/20 shadow-[0_10px_40px_-10px_rgba(79,70,229,0.15)] hover:shadow-[0_20px_50px_-12px_rgba(79,70,229,0.25)] hover:border-indigo-600/40 md:border-0 md:shadow-none'
+                    : 'text-slate-500 md:text-slate-500 hover:text-slate-900 md:hover:text-indigo-600 hover:bg-white md:hover:bg-indigo-50 border border-indigo-600/30 shadow-sm md:shadow-none md:border-0 bg-white/60 md:bg-transparent'
                 }`}
               >
                 <span>{sub.label}</span>

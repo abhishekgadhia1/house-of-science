@@ -47,10 +47,10 @@ const Hero: React.FC<HeroProps> = ({ onCtaClick, onSearchNavigate }) => {
         <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-purple-200/40 rounded-full blur-[100px] mix-blend-multiply opacity-60"></div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-12 w-full relative z-10 grid lg:grid-cols-2 gap-4 md:gap-16 items-center h-full">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-12 w-full relative z-10 grid lg:grid-cols-2 gap-4 md:gap-16 items-center h-full pt-6 lg:pt-0">
         
         {/* Left Column: Typography */}
-        <div className="space-y-6 md:space-y-8 animate-slide-up order-1 flex flex-col items-center text-center md:items-start md:text-left">
+        <div className="flex flex-col items-center text-center md:items-start md:text-left space-y-3 md:space-y-8 animate-slide-up order-1">
               <div className="flex items-center justify-center md:justify-start space-x-4">
                  <div className="h-px w-12 bg-indigo-600"></div>
                  <span className="text-indigo-600 font-mono text-[10px] md:text-xs tracking-widest uppercase font-bold">Est. 2025</span>
@@ -62,7 +62,7 @@ const Hero: React.FC<HeroProps> = ({ onCtaClick, onSearchNavigate }) => {
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Science.</span>
               </h1>
 
-              <div className="flex items-center gap-4 pt-1 md:pt-4">
+              <div className="flex items-center justify-center md:justify-start gap-4 pt-1 md:pt-4">
                   <button onClick={onCtaClick} className="bg-slate-900 text-white px-5 py-2.5 md:px-8 md:py-4 rounded-lg text-[10px] md:text-xs font-bold uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-lg hover:shadow-xl flex items-center">
                     Browse Modules
                     <ArrowRight className="ml-2 w-4 h-4" />

@@ -28,7 +28,7 @@ const NavBar: React.FC<NavBarProps> = ({ currentSection, onNavigate, onEnrolClic
   };
 
   return (
-    <nav className="fixed top-0 w-full z-50 glass-panel py-3 md:py-4 transition-all duration-300">
+    <nav className="fixed top-0 w-full z-50 glass-panel py-4 transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-12">
         <div className="flex justify-between items-center">
           
@@ -37,7 +37,7 @@ const NavBar: React.FC<NavBarProps> = ({ currentSection, onNavigate, onEnrolClic
             className="flex items-center cursor-pointer group"
             onClick={() => handleNavClick(NavSection.HOME)}
           >
-            <span className="font-display text-xl md:text-2xl tracking-tight text-slate-900 leading-none group-hover:text-indigo-600 transition-colors duration-300">
+            <span className="font-display text-2xl tracking-tight text-slate-900 leading-none group-hover:text-indigo-600 transition-colors duration-300">
               houseof<span className="font-extrabold text-black">science</span>
             </span>
           </div>
@@ -63,7 +63,7 @@ const NavBar: React.FC<NavBarProps> = ({ currentSection, onNavigate, onEnrolClic
             
             <button 
               onClick={handleEnrolClick}
-              className="md:bg-black md:text-white md:px-8 md:py-3 md:rounded-none md:text-xs md:font-bold md:uppercase md:tracking-widest md:hover:bg-indigo-600 md:shadow-md md:hover:shadow-lg border border-slate-900 text-slate-900 px-8 py-2.5 text-[10px] font-mono font-bold uppercase tracking-[0.2em] hover:bg-slate-900 hover:text-white transition-all duration-300 md:border-0"
+              className="md:bg-black md:text-white md:px-8 md:py-3 md:rounded-none md:text-xs md:font-bold md:uppercase md:tracking-widest md:hover:bg-indigo-600 md:shadow-md md:hover:shadow-lg border border-slate-900 text-slate-900 px-8 py-3 text-xs font-mono font-bold uppercase tracking-[0.2em] hover:bg-slate-900 hover:text-white transition-all duration-300 md:border-0"
             >
               ENROL
             </button>
@@ -83,13 +83,13 @@ const NavBar: React.FC<NavBarProps> = ({ currentSection, onNavigate, onEnrolClic
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden absolute top-full left-0 w-full bg-white/95 backdrop-blur-md border-b border-zinc-100 p-6 animate-fade-in shadow-2xl">
-          <div className="flex flex-col space-y-5 items-center">
+        <div className="md:hidden absolute top-full left-0 w-full bg-white/95 backdrop-blur-md border-b border-zinc-100 p-5 animate-fade-in shadow-2xl">
+          <div className="flex flex-col space-y-4 items-center">
             {navItems.map((item) => (
               <button
                 key={item.id}
                 onClick={() => handleNavClick(item.id)}
-                className={`text-xs font-mono font-bold uppercase tracking-[0.3em] transition-all duration-300 ${
+                className={`text-[13px] font-mono font-bold uppercase tracking-[0.2em] transition-all duration-300 ${
                   currentSection === item.id
                     ? 'text-indigo-600'
                     : 'text-zinc-500 hover:text-black'
@@ -100,7 +100,7 @@ const NavBar: React.FC<NavBarProps> = ({ currentSection, onNavigate, onEnrolClic
             ))}
             <button 
               onClick={handleEnrolClick}
-              className="px-6 py-2 border border-slate-900 text-slate-900 text-[10px] font-mono font-bold uppercase tracking-[0.2em] hover:bg-slate-900 hover:text-white transition-all"
+              className="px-7 py-2.5 border border-slate-900 text-slate-900 text-xs font-mono font-bold uppercase tracking-[0.2em] hover:bg-slate-900 hover:text-white transition-all"
             >
               ENROL
             </button>
