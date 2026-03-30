@@ -98,7 +98,7 @@ const EnrollmentModal: React.FC<EnrollmentModalProps> = ({ isOpen, onClose }) =>
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="relative w-full max-w-4xl bg-white shadow-2xl overflow-hidden flex flex-col md:flex-row h-[90vh] md:h-[85vh] max-h-[800px] rounded-sm md:rounded-none -mt-2 md:mt-0"
+          className="relative w-full max-w-4xl bg-white shadow-2xl overflow-hidden flex flex-col md:flex-row h-[90vh] md:h-[85vh] max-h-[800px] rounded-sm md:rounded-none mt-2 md:mt-0"
         >
           {/* Close Button */}
           <button 
@@ -242,7 +242,7 @@ const EnrollmentModal: React.FC<EnrollmentModalProps> = ({ isOpen, onClose }) =>
               </div>
 
               {/* Right Side: Cart Summary */}
-              <div className="w-full md:w-1/2 flex-1 md:flex-none bg-slate-50/50 md:bg-slate-50 pt-2 px-3 pb-10 md:p-12 flex flex-col overflow-hidden min-h-[250px]">
+              <div className="w-full md:w-1/2 flex-1 md:flex-none bg-slate-50/50 md:bg-slate-50 pt-2 px-3 pb-8 md:p-12 flex flex-col overflow-hidden min-h-[250px]">
                 <div className="flex items-center justify-between mb-1 md:mb-8">
                   <div className="flex items-center space-x-2 md:space-x-3">
                     <ShoppingCart className="w-3.5 h-3.5 md:w-6 md:h-6 text-slate-900" />
