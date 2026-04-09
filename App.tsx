@@ -58,10 +58,10 @@ const App: React.FC = () => {
       
       {/* Main Content Area */}
       <main className="flex-grow relative overflow-hidden pt-20">
-        <div className="h-full w-full overflow-y-auto custom-scrollbar">
+        <div className={`h-full w-full custom-scrollbar ${currentSection === NavSection.WORKSHOPS ? 'md:overflow-hidden overflow-y-auto' : 'overflow-y-auto'}`}>
           {renderContent()}
           {/* Footer shows at bottom of content flow, except potentially on Home if design dictates, but here we include it always at bottom of scroll */}
-          {currentSection !== NavSection.HOME && <Footer />}
+          {currentSection !== NavSection.HOME && currentSection !== NavSection.WORKSHOPS && <Footer />}
         </div>
       </main>
 

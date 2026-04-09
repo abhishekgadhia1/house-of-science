@@ -60,13 +60,7 @@ const NavBar: React.FC<NavBarProps> = ({ currentSection, onNavigate, onEnrolClic
                 </button>
               ))}
             </div>
-            
-            <button 
-              onClick={handleEnrolClick}
-              className="md:bg-black md:text-white md:px-8 md:py-3 md:rounded-none md:text-xs md:font-bold md:uppercase md:tracking-widest md:hover:bg-indigo-600 md:shadow-md md:hover:shadow-lg border border-slate-900 text-slate-900 px-8 py-3 text-xs font-mono font-bold uppercase tracking-[0.2em] hover:bg-slate-900 hover:text-white transition-all duration-300 md:border-0"
-            >
-              ENROL
-            </button>
+            {/* ENROL button hidden from desktop menu list as per request */}
           </div>
 
           {/* Mobile Menu Button */}
@@ -98,12 +92,7 @@ const NavBar: React.FC<NavBarProps> = ({ currentSection, onNavigate, onEnrolClic
                 {item.label}
               </button>
             ))}
-            <button 
-              onClick={handleEnrolClick}
-              className="px-5 py-2 border border-slate-900 text-slate-900 text-[11px] font-mono font-bold uppercase tracking-[0.2em] hover:bg-slate-900 hover:text-white transition-all"
-            >
-              ENROL
-            </button>
+            {/* ENROL button hidden from mobile menu list as per request */}
           </div>
         </div>
       )}

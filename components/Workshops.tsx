@@ -1,9 +1,10 @@
 
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Workshop } from '../types';
 import { RAW_WORKSHOPS } from '../data/curriculum';
+import Footer from './Footer';
 import { FlaskConical, Atom, Dna, Cpu, Grid, Zap, Magnet, Gauge, Search, Wind, Waves, Sun, Sparkles, Radio, Telescope, Fingerprint, X, CheckCircle2, ChevronRight, LayoutGrid, GraduationCap, BookOpen, Bug, Calendar, Lock, ArrowRight, Phone, User, Sigma } from 'lucide-react';
 
 const getCategoryImage = (cat: string) => {
@@ -67,6 +68,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
   const [enrollSuccess, setEnrollSuccess] = useState(false);
   const [enrollName, setEnrollName] = useState('');
   const [enrollPhone, setEnrollPhone] = useState('');
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Sync state if props change (re-navigation)
   useEffect(() => {
@@ -81,26 +83,18 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
     }
   }, [initialSubject, initialQuery]);
 
-  // Subject Sidebar Items
-  const subjects = [
-    { id: 'Physics', label: 'Physics' },
-    { id: 'Chemistry', label: 'Chemistry' },
-    { id: 'Biology', label: 'Biotech' },
-    { id: 'Electronics', label: 'Electronics' },
-    { id: 'Robotics', label: 'Robotics' },
-    { id: 'Astronomy', label: 'Astronomy' },
-    { id: 'Applied Math', label: 'Applied Math' }
-  ];
-
-  // Grade Items (5-12)
-  const grades = Array.from({ length: 8 }, (_, i) => i + 5);
-
-  // Age Ranges
-  const ageRanges = [
-      { label: '10-12 Yrs', min: 5, max: 7 },
-      { label: '13-15 Yrs', min: 8, max: 10 },
-      { label: '16-18 Yrs', min: 11, max: 12 }
-  ];
+  // Reset scroll on view mode or filter change (Mobile only)
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      // On mobile, the scroll container is in App.tsx (the div with overflow-y-auto)
+      const scrollContainer = containerRef.current?.closest('.overflow-y-auto');
+      if (scrollContainer) {
+        scrollContainer.scrollTo(0, 0);
+      } else {
+        window.scrollTo(0, 0);
+      }
+    }
+  }, [viewMode, selectedSubject, selectedGrade, selectedAgeRange]);
 
   // Formatted Data
   const workshopsData: Workshop[] = useMemo(() => {
@@ -122,6 +116,35 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
       };
     });
   }, []);
+
+  // Subject Sidebar Items
+  const subjects = useMemo(() => {
+    const baseSubjects = [
+      { id: 'Physics', label: 'Physics' },
+      { id: 'Chemistry', label: 'Chemistry' },
+      { id: 'Biology', label: 'Biotech' },
+      { id: 'Electronics', label: 'Electronics' },
+      { id: 'Robotics', label: 'Robotics' },
+      { id: 'Astronomy', label: 'Astronomy' },
+      { id: 'Applied Math', label: 'Applied Math' }
+    ];
+
+    return baseSubjects.map(sub => {
+      const subjectWorkshops = workshopsData.filter(w => w.category === sub.id);
+      const isAllComingSoon = subjectWorkshops.length > 0 && subjectWorkshops.every(w => w.comingSoon);
+      return { ...sub, isAllComingSoon };
+    });
+  }, [workshopsData]);
+
+  // Grade Items (5-12)
+  const grades = Array.from({ length: 8 }, (_, i) => i + 5);
+
+  // Age Ranges
+  const ageRanges = [
+      { label: '10-12 Yrs', min: 5, max: 7 },
+      { label: '13-15 Yrs', min: 8, max: 10 },
+      { label: '16-18 Yrs', min: 11, max: 12 }
+  ];
 
   // FILTER LOGIC
   const displayedWorkshops = useMemo(() => {
@@ -328,40 +351,82 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
   };
 
   return (
-    <div className="bg-slate-50 min-h-full flex flex-col relative">
-      <div className="flex-grow flex flex-col md:flex-row h-full">
+    <div ref={containerRef} className="bg-slate-50 md:h-full h-auto flex flex-col relative md:overflow-hidden">
+      <div className="flex-grow flex flex-col md:flex-row md:h-full h-auto md:overflow-hidden">
         
-        {/* Sidebar */}
-        <div className="w-full md:w-64 lg:w-72 bg-white md:bg-white/50 border-b md:border-b-0 md:border-r border-slate-200 p-4 md:p-8 flex flex-col flex-shrink-0 animate-fade-in backdrop-blur-sm sticky top-0 z-40">
-          <div className="mb-3 md:mb-6">
-            <h2 className="text-indigo-600 font-mono text-[9px] md:text-xs tracking-widest uppercase font-bold mb-0.5 md:mb-2 opacity-70">/ Select Subject</h2>
-            <h3 className="text-base md:text-xl font-display font-bold text-slate-900 tracking-tight">
-                Curriculum
-            </h3>
+        {/* Mobile Sticky Header Wrapper / Desktop Sidebar Container */}
+        <div className="md:contents sticky top-0 z-40 bg-white border-b border-slate-200 md:border-0">
+          {/* Sidebar */}
+          <div className="w-full md:w-64 lg:w-72 bg-white md:bg-white/50 border-b md:border-b-0 md:border-r border-slate-200 p-4 md:p-8 flex flex-col flex-shrink-0 animate-fade-in backdrop-blur-sm md:h-full md:overflow-y-auto custom-scrollbar">
+            <div className="mb-3 md:mb-6">
+              <h2 className="text-indigo-600 font-mono text-[9px] md:text-xs tracking-widest uppercase font-bold mb-0.5 md:mb-2 opacity-70">/ Select Subject</h2>
+              <h3 className="hidden md:block text-base md:text-xl font-display font-bold text-slate-900 tracking-tight">
+                  Curriculum
+              </h3>
+            </div>
+            
+            <div className="flex-grow md:overflow-visible grid grid-cols-3 md:flex md:flex-col gap-1.5 md:gap-0 pb-1 md:pb-0">
+              {subjects.map((sub) => (
+                <button
+                  key={sub.id}
+                  onClick={() => {
+                     setSelectedSubject(sub.id);
+                     setSearchQuery(''); // Clear search on subject change
+                     if (typeof window !== 'undefined' && window.innerWidth < 768) {
+                       setViewMode('topic');
+                     }
+                  }}
+                  className={`w-full items-center justify-center md:justify-between text-center md:text-left px-1 py-1.5 md:px-4 md:py-3 text-[10px] md:text-sm font-mono md:font-medium transition-all duration-300 rounded-md uppercase md:normal-case tracking-tighter md:tracking-normal ${
+                    sub.id === 'Astronomy' ? 'hidden md:flex' : 'flex'
+                  } ${
+                    selectedSubject === sub.id
+                      ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200'
+                      : 'text-slate-500 md:text-slate-500 hover:text-slate-900 md:hover:text-indigo-600 hover:bg-white md:hover:bg-indigo-50 border border-indigo-600/30 shadow-sm md:shadow-none md:border-0 bg-white/60 md:bg-transparent'
+                  }`}
+                >
+                  <span className="relative">
+                    {sub.label}
+                  </span>
+                  {selectedSubject === sub.id && (
+                    <span className="hidden md:block w-1.5 h-1.5 bg-white rounded-full"></span>
+                  )}
+                </button>
+              ))}
+            </div>
           </div>
-          
-          <div className="flex-grow md:overflow-visible grid grid-cols-3 md:flex md:flex-col gap-1.5 md:gap-0 pb-1 md:pb-0">
-            {subjects.map((sub) => (
-              <button
-                key={sub.id}
-                onClick={() => {
-                   setSelectedSubject(sub.id);
-                   setSearchQuery(''); // Clear search on subject change
-                }}
-                className={`w-full items-center justify-center md:justify-between text-center md:text-left px-1 py-1.5 md:px-4 md:py-3 text-[10px] md:text-sm font-mono md:font-medium transition-all duration-300 rounded-md uppercase md:normal-case tracking-tighter md:tracking-normal ${
-                  sub.id === 'Astronomy' ? 'hidden md:flex' : 'flex'
-                } ${
-                  selectedSubject === sub.id
-                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200'
-                    : 'text-slate-500 md:text-slate-500 hover:text-slate-900 md:hover:text-indigo-600 hover:bg-white md:hover:bg-indigo-50 border border-indigo-600/30 shadow-sm md:shadow-none md:border-0 bg-white/60 md:bg-transparent'
-                }`}
-              >
-                <span>{sub.label}</span>
-                {selectedSubject === sub.id && (
-                  <span className="hidden md:block w-1.5 h-1.5 bg-white rounded-full"></span>
-                )}
-              </button>
-            ))}
+
+          {/* Mobile-only Header Controls (Sticky) */}
+          <div className="md:hidden p-4 bg-white border-t border-slate-100 flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-1 bg-slate-50 border border-slate-200 rounded-lg p-0.5">
+                      <button 
+                          onClick={() => setViewMode('topic')}
+                          className={`px-2 py-1 text-[9px] font-bold uppercase tracking-wider rounded-md transition-all ${viewMode === 'topic' ? 'bg-slate-900 text-white' : 'text-slate-500'}`}
+                      >
+                          Topic
+                      </button>
+                      <button 
+                          onClick={() => setViewMode('age')}
+                          className={`px-2 py-1 text-[9px] font-bold uppercase tracking-wider rounded-md transition-all ${viewMode === 'age' ? 'bg-slate-900 text-white' : 'text-slate-500'}`}
+                      >
+                          Age
+                      </button>
+                      <button 
+                          onClick={() => setViewMode('grade')}
+                          className={`px-2 py-1 text-[9px] font-bold uppercase tracking-wider rounded-md transition-all ${viewMode === 'grade' ? 'bg-slate-900 text-white' : 'text-slate-500'}`}
+                      >
+                          Grade
+                      </button>
+                  </div>
+                  <div className="flex items-baseline space-x-1.5">
+                      <h2 className="text-[10px] font-mono font-bold text-slate-900 tracking-widest uppercase">
+                          {selectedSubject}
+                      </h2>
+                      <span className="font-mono text-[8px] text-slate-400">
+                          {displayedWorkshops.length} UNITS
+                      </span>
+                  </div>
+              </div>
           </div>
         </div>
 
@@ -369,66 +434,114 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
         <div className="flex-grow p-4 lg:p-8 md:overflow-y-auto custom-scrollbar bg-slate-50/50 animate-fade-in">
           <div className="w-full max-w-[2000px]">
              
-             {/* Header Controls */}
-             <div className="mb-4 md:mb-8 flex flex-col md:flex-row md:items-end justify-between gap-2 md:gap-6">
-                <div className="flex flex-col gap-2 md:gap-4 flex-grow">
+             {/* Mobile-only Scrolling Controls */}
+             <div className="md:hidden flex flex-col mb-4">
+                {/* Mobile Search */}
+                {viewMode === 'topic' && (
+                    <div className="relative group w-full h-9">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400" />
+                        <input 
+                            type="text" 
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder={getPlaceholder()} 
+                            className="w-full h-full bg-white border border-slate-200 pl-8 pr-4 text-[10px] font-mono text-slate-900 outline-none rounded-md placeholder-slate-400 uppercase tracking-wide shadow-sm"
+                        />
+                    </div>
+                )}
+
+                {/* Mobile Selectors Strip */}
+                {(viewMode === 'grade' || viewMode === 'age') && (
+                    <div className="w-full h-9">
+                        {viewMode === 'grade' ? (
+                            <div className="grid grid-cols-8 gap-1 bg-slate-200/50 p-1 rounded-lg h-full">
+                                {grades.map(g => (
+                                    <button
+                                        key={g}
+                                        onClick={() => setSelectedGrade(g)}
+                                        className={`flex items-center justify-center rounded-md text-[10px] font-bold transition-all duration-200 h-full ${
+                                            selectedGrade === g 
+                                            ? 'bg-white text-indigo-600 shadow-sm scale-[1.02]' 
+                                            : 'text-slate-400 hover:text-slate-600'
+                                        }`}
+                                    >
+                                        {g}
+                                    </button>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-3 gap-1 bg-slate-200/50 p-1 rounded-lg h-full">
+                                {ageRanges.map((range, idx) => (
+                                    <button
+                                        key={idx}
+                                        onClick={() => setSelectedAgeRange(range)}
+                                        className={`flex items-center justify-center rounded-md text-[9px] font-bold uppercase tracking-tight transition-all duration-200 h-full ${
+                                            selectedAgeRange.label === range.label 
+                                            ? 'bg-white text-indigo-600 shadow-sm scale-[1.02]' 
+                                            : 'text-slate-400'
+                                        }`}
+                                    >
+                                        {range.label}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
+             </div>
+
+             {/* Desktop Header Controls (Hidden on mobile) */}
+             <div className="hidden md:flex mb-8 flex-row items-end justify-between gap-6">
+                <div className="flex flex-col gap-4 flex-grow">
                     
                     {/* View Toggle */}
-                    <div className="flex items-center space-x-1 md:space-x-2 bg-white border border-slate-200 rounded-lg p-0.5 md:p-1 w-fit">
+                    <div className="flex items-center space-x-2 bg-white border border-slate-200 rounded-lg p-1 w-fit">
                          <button 
                             onClick={() => setViewMode('topic')}
-                            className={`flex items-center px-2.5 md:px-4 py-1 md:py-2 text-[10px] md:text-xs font-bold uppercase tracking-wider rounded-md transition-all ${
+                            className={`flex items-center px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-md transition-all ${
                                 viewMode === 'topic' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
                             }`}
                         >
-                            <LayoutGrid className="w-3 h-3 mr-1 md:mr-2" />
+                            <LayoutGrid className="w-3 h-3 mr-2" />
                             By Topic
                         </button>
                         <button 
                             onClick={() => setViewMode('age')}
-                            className={`flex items-center px-2.5 md:px-4 py-1 md:py-2 text-[10px] md:text-xs font-bold uppercase tracking-wider rounded-md transition-all ${
+                            className={`flex items-center px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-md transition-all ${
                                 viewMode === 'age' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
                             }`}
                         >
-                            <Calendar className="w-3 h-3 mr-1 md:mr-2" />
+                            <Calendar className="w-3 h-3 mr-2" />
                             By Age
                         </button>
                         <button 
                             onClick={() => setViewMode('grade')}
-                            className={`flex items-center px-2.5 md:px-4 py-1 md:py-2 text-[10px] md:text-xs font-bold uppercase tracking-wider rounded-md transition-all ${
+                            className={`flex items-center px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-md transition-all ${
                                 viewMode === 'grade' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
                             }`}
                         >
-                            <GraduationCap className="w-3 h-3 mr-1 md:mr-2" />
+                            <GraduationCap className="w-3 h-3 mr-2" />
                             By Grade
                         </button>
                     </div>
 
-                    <div className="flex items-baseline space-x-2 md:space-x-3 pt-2 border-t border-slate-100 md:border-0">
-                        <h2 className="text-[11px] md:text-3xl font-mono md:font-display font-bold text-slate-900 tracking-widest md:tracking-tight uppercase">
+                    <div className="flex items-baseline space-x-3">
+                        <h2 className="text-2xl font-display font-bold text-slate-900 tracking-tight">
                             {getHeaderTitle()}
                         </h2>
-                        <span className="font-mono md:font-sans text-[8px] md:text-xs text-slate-400 bg-white px-1.5 md:px-3 py-0.5 md:py-1 rounded-full border border-slate-100">
-                            {displayedWorkshops.length} <span className="md:hidden">UNITS</span><span className="hidden md:inline">MODULES</span>
+                        <span className="font-sans text-xs text-slate-400 bg-white px-3 py-1 rounded-full border border-slate-100">
+                            {displayedWorkshops.length} MODULES
                         </span>
                     </div>
 
-                    {/* Grade Selector Strip (Only visible in Grade Mode) */}
+                    {/* Grade Selector Strip */}
                     {viewMode === 'grade' && (
                         <div className="flex items-center space-x-2 overflow-x-auto pb-2 pt-1 custom-scrollbar max-w-full">
                             {grades.map(g => (
                                 <button
                                     key={g}
                                     onClick={() => setSelectedGrade(g)}
-                                    className={`
-                                      group relative px-2 md:px-3 py-1 md:py-1.5 flex items-center justify-center rounded-md text-[10px] font-bold transition-all duration-300 flex-shrink-0 uppercase tracking-wider border
-                                      transform active:scale-95
-                                      ${
-                                        selectedGrade === g 
-                                        ? 'bg-slate-800 border-slate-800 text-white shadow-lg shadow-slate-200 translate-y-[-1px]' 
-                                        : 'bg-white border-slate-200 text-slate-400 hover:border-indigo-300 hover:text-indigo-600 hover:shadow-md'
-                                      }
-                                    `}
+                                    className={`group relative px-3 py-1.5 flex items-center justify-center rounded-md text-[10px] font-bold transition-all duration-300 flex-shrink-0 uppercase tracking-wider border transform active:scale-95 ${selectedGrade === g ? 'bg-slate-800 border-slate-800 text-white shadow-lg shadow-slate-200 translate-y-[-1px]' : 'bg-white border-slate-200 text-slate-400 hover:border-indigo-300 hover:text-indigo-600 hover:shadow-md'}`}
                                 >
                                     <span className="relative z-10">Class {g}</span>
                                 </button>
@@ -436,40 +549,31 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                         </div>
                     )}
 
-                    {/* Age Selector Strip (Only visible in Age Mode) */}
+                    {/* Age Selector Strip */}
                     {viewMode === 'age' && (
                         <div className="flex items-center space-x-2 overflow-x-auto pb-2 pt-1 custom-scrollbar max-w-full">
                             {ageRanges.map((range, idx) => (
                                 <button
                                     key={idx}
                                     onClick={() => setSelectedAgeRange(range)}
-                                    className={`
-                                      group relative px-2 md:px-3 py-1 md:py-1.5 flex items-center justify-center rounded-md text-[10px] font-bold transition-all duration-300 flex-shrink-0 uppercase tracking-wider border
-                                      transform active:scale-95
-                                      ${
-                                        selectedAgeRange.label === range.label
-                                        ? 'bg-slate-800 border-slate-800 text-white shadow-lg shadow-slate-200 translate-y-[-1px]' 
-                                        : 'bg-white border-slate-200 text-slate-400 hover:border-indigo-300 hover:text-indigo-600 hover:shadow-md'
-                                      }
-                                    `}
+                                    className={`group relative px-3 py-1.5 flex items-center justify-center rounded-md text-[10px] font-bold transition-all duration-300 flex-shrink-0 uppercase tracking-wider border transform active:scale-95 ${selectedAgeRange.label === range.label ? 'bg-slate-800 border-slate-800 text-white shadow-lg shadow-slate-200 translate-y-[-1px]' : 'bg-white border-slate-200 text-slate-400 hover:border-indigo-300 hover:text-indigo-600 hover:shadow-md'}`}
                                 >
                                     <span className="relative z-10">{range.label}</span>
                                 </button>
                             ))}
                         </div>
                     )}
-
                 </div>
 
                 {/* Search */}
-                <div className="relative group w-full md:w-80">
+                <div className="relative group w-80">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
                     <input 
                         type="text" 
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder={getPlaceholder()} 
-                        className="w-full bg-white border border-slate-200 pl-9 pr-4 py-2 md:py-3 text-[10px] md:text-sm font-mono md:font-sans font-medium text-slate-900 focus:border-indigo-600 focus:ring-0 outline-none transition-all placeholder-slate-400 uppercase tracking-wide md:tracking-normal rounded-sm md:rounded-lg shadow-sm"
+                        className="w-full bg-white border border-slate-200 pl-9 pr-4 py-3 text-sm font-sans font-medium text-slate-900 focus:border-indigo-600 focus:ring-0 outline-none transition-all placeholder-slate-400 rounded-lg shadow-sm"
                     />
                 </div>
              </div>
@@ -489,6 +593,11 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                       </p>
                   </div>
                 )}
+             </div>
+
+             {/* Footer inside scrollable area for Workshops */}
+             <div className="mt-6 md:mt-20 -mx-4 lg:-mx-8">
+                <Footer />
              </div>
 
           </div>

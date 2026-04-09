@@ -2,7 +2,7 @@ import React from 'react';
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-white border-t border-zinc-100 py-4 md:py-20">
+    <footer className="bg-white border-t border-zinc-100 py-2 md:py-20">
       <div className="max-w-7xl mx-auto px-6 lg:px-12 flex flex-col md:flex-row justify-between items-center">
         <div className="flex items-center space-x-3 mb-2 md:mb-0">
              <span className="font-display text-lg md:text-xl tracking-tight text-black">
@@ -11,9 +11,9 @@ const Footer: React.FC = () => {
         </div>
         
         <div className="flex space-x-4 md:space-x-8 text-[10px] md:text-xs font-mono text-zinc-500 uppercase tracking-widest">
-            <a href="#" className="hover:text-indigo-600 transition-colors">Instagram</a>
-            <a href="#" className="hover:text-indigo-600 transition-colors">Twitter</a>
-            <a href="#" className="hover:text-indigo-600 transition-colors">Legal</a>
+            <a href="https://www.instagram.com/houseofscience.in/" target="_blank" rel="noopener noreferrer" className="hover:text-indigo-600 transition-colors">Instagram</a>
+            <a href="https://x.com/houseofscience_" target="_blank" rel="noopener noreferrer" className="hover:text-indigo-600 transition-colors">Twitter</a>
+            <a href="#" className="hover:text-indigo-600 transition-colors">YouTube</a>
         </div>
       </div>
       <div className="max-w-7xl mx-auto px-6 lg:px-12 mt-2 text-center md:text-left">
