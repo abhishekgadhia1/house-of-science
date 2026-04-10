@@ -431,7 +431,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
         </div>
 
         {/* Main Content */}
-        <div className="flex-grow p-4 lg:p-8 md:overflow-y-auto custom-scrollbar bg-slate-50/50 animate-fade-in">
+        <div className="flex-grow p-4 lg:p-8 md:overflow-y-auto custom-scrollbar bg-slate-50 animate-fade-in">
           <div className="w-full max-w-[2000px]">
              
              {/* Mobile-only Scrolling Controls */}
@@ -491,7 +491,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
              </div>
 
              {/* Desktop Header Controls (Hidden on mobile) */}
-             <div className="hidden md:flex mb-8 flex-row items-end justify-between gap-6">
+             <div className="hidden md:flex sticky -top-16 z-30 bg-slate-50 -mx-4 lg:-mx-8 px-4 lg:px-8 pt-10 pb-6 mb-8 flex-row items-start justify-between gap-6 md:-mt-16">
                 <div className="flex flex-col gap-4 flex-grow">
                     
                     {/* View Toggle */}
@@ -573,7 +573,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder={getPlaceholder()} 
-                        className="w-full bg-white border border-slate-200 pl-9 pr-4 py-3 text-sm font-sans font-medium text-slate-900 focus:border-indigo-600 focus:ring-0 outline-none transition-all placeholder-slate-400 rounded-lg shadow-sm"
+                        className="w-full bg-white border border-slate-200 pl-9 pr-4 py-2.5 text-xs font-sans font-medium text-slate-900 focus:border-indigo-600 focus:ring-0 outline-none transition-all placeholder-slate-400 rounded-lg shadow-sm"
                     />
                 </div>
              </div>
