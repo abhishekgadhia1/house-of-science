@@ -37,7 +37,7 @@ const NavBar: React.FC<NavBarProps> = ({ currentSection, onNavigate, onEnrolClic
             className="flex items-center cursor-pointer group"
             onClick={() => handleNavClick(NavSection.HOME)}
           >
-            <span className="font-display text-2xl tracking-tight text-slate-900 leading-none group-hover:text-indigo-600 transition-colors duration-300">
+            <span className="font-display text-2xl tracking-tight text-indigo-600 leading-none transition-colors duration-300">
               houseof<span className="font-extrabold text-black">science</span>
             </span>
           </div>

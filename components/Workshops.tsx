@@ -68,6 +68,9 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
   const [enrollSuccess, setEnrollSuccess] = useState(false);
   const [enrollName, setEnrollName] = useState('');
   const [enrollPhone, setEnrollPhone] = useState('');
+  const [sharePhone, setSharePhone] = useState('');
+  const [shareSuccess, setShareSuccess] = useState(false);
+  const [showWhatsappPopup, setShowWhatsappPopup] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Sync state if props change (re-navigation)
@@ -99,6 +102,10 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
   // Formatted Data
   const workshopsData: Workshop[] = useMemo(() => {
     return RAW_WORKSHOPS.map((raw, idx) => {
+      const expCount = raw.exps.length;
+      const calculatedPrice = expCount >= 5 ? 400 : 300;
+      const calculatedDuration = expCount >= 5 ? '2 HOURS' : '1.5 HOURS';
+
       return {
         id: `${raw.cat.substring(0,2).toLowerCase()}-${idx}-g${raw.grade}`,
         title: raw.title,
@@ -107,10 +114,10 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
         category: raw.cat as any,
         gradeLevel: raw.grade,
         ageGroup: `${raw.grade + 5}-${raw.grade + 6}`,
-        price: raw.price,
-        duration: '3 HOURS',
+        price: calculatedPrice,
+        duration: calculatedDuration,
         image: getCategoryImage(raw.cat),
-        experimentCount: raw.exps.length,
+        experimentCount: expCount,
         experimentList: raw.exps,
         comingSoon: (raw as any).comingSoon || false
       };
@@ -202,6 +209,12 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
       return () => clearTimeout(timer);
     }
   }, [enrollSuccess]);
+
+  // Reset share state when viewing experiments modal changes
+  useEffect(() => {
+    setSharePhone('');
+    setShareSuccess(false);
+  }, [viewingExperiments]);
 
   const getPlaceholder = () => {
     if (viewMode === 'topic') return `SEARCH ${selectedSubject.toUpperCase()} TOPICS...`;
@@ -491,7 +504,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
              </div>
 
              {/* Desktop Header Controls (Hidden on mobile) */}
-             <div className="hidden md:flex sticky -top-16 z-30 bg-slate-50 -mx-4 lg:-mx-8 px-4 lg:px-8 pt-10 pb-6 mb-8 flex-row items-start justify-between gap-6 md:-mt-16">
+             <div className="hidden md:flex sticky -top-16 z-30 bg-slate-50 -mx-4 lg:-mx-8 px-4 lg:px-8 pt-10 pb-5 mb-6 flex-row items-start justify-between gap-6 md:-mt-16">
                 <div className="flex flex-col gap-4 flex-grow">
                     
                     {/* View Toggle */}
@@ -757,18 +770,84 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="p-6 max-h-[60vh] overflow-y-auto custom-scrollbar bg-slate-50/50">
-              <ul className="space-y-3">
-                {viewingExperiments.experimentList && viewingExperiments.experimentList.map((exp, index) => (
-                  <li key={index} className="flex items-start gap-3 text-sm text-slate-700">
-                    <CheckCircle2 className="w-4 h-4 text-indigo-600 mt-0.5 flex-shrink-0" />
-                    <span className="font-medium">{exp}</span>
-                  </li>
-                ))}
-                {(!viewingExperiments.experimentList || viewingExperiments.experimentList.length === 0) && (
-                  <li className="text-slate-400 italic text-sm">Detailed manifest loading...</li>
-                )}
-              </ul>
+            <div className="p-6 max-h-[60vh] overflow-y-auto custom-scrollbar bg-slate-50/50 flex flex-col md:flex-row gap-6">
+              <div className="flex-1 blur-[4px]">
+                <ul className="space-y-3">
+                  {viewingExperiments.experimentList && viewingExperiments.experimentList.map((exp, index) => (
+                    <li key={index} className="flex items-start gap-3 text-sm text-slate-700">
+                      <CheckCircle2 className="w-4 h-4 text-indigo-600 mt-0.5 flex-shrink-0" />
+                      <span className="font-medium">{exp}</span>
+                    </li>
+                  ))}
+                  {(!viewingExperiments.experimentList || viewingExperiments.experimentList.length === 0) && (
+                    <li className="text-slate-400 italic text-sm">Detailed manifest loading...</li>
+                  )}
+                </ul>
+              </div>
+
+              <div className="md:w-44 flex flex-col justify-center md:border-l md:border-slate-200 md:pl-6 pt-4 md:pt-0 border-t md:border-t-0 border-slate-100">
+                <p className="text-[10px] text-slate-500 font-medium mb-3 leading-relaxed">
+                  Experiment list will be shared on this number
+                </p>
+                <div className="flex flex-row gap-2 md:flex-col md:space-y-3">
+                  <div className="relative group flex-1">
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
+                    <input 
+                      type="tel" 
+                      value={sharePhone}
+                      onChange={(e) => {
+                        setSharePhone(e.target.value);
+                        if (shareSuccess) setShareSuccess(false);
+                      }}
+                      placeholder="Enter Number"
+                      className="w-full bg-white border border-slate-200 pl-9 pr-3 py-2.5 text-xs font-sans font-medium text-slate-900 focus:border-indigo-600 focus:ring-0 outline-none transition-all placeholder-slate-400 rounded-lg shadow-sm"
+                    />
+                  </div>
+                  <div className="flex justify-center shrink-0">
+                    <button 
+                      onClick={() => {
+                        if (sharePhone.length >= 10) {
+                          setShareSuccess(true);
+                          
+                          // Execute real POST request
+                          fetch("https://script.google.com/macros/s/AKfycbyFspfDjSN4qdqE3PHPChK0WRfXK0Ss2ijxugnlF38eGcsk_TV8lPACSFS1rxaRhxid4Q/exec", {
+                            method: "POST",
+                            mode: 'no-cors',
+                            body: new URLSearchParams({
+                              module: viewingExperiments?.title || '',
+                              phone: sharePhone
+                            })
+                          });
+
+                          // Show WhatsApp popup
+                          setShowWhatsappPopup(true);
+                          setTimeout(() => {
+                            setShowWhatsappPopup(false);
+                          }, 3000);
+                        } else {
+                          alert("Please enter a valid phone number");
+                        }
+                      }}
+                      disabled={shareSuccess}
+                      className={`px-4 py-2 rounded-md text-[9px] font-bold uppercase tracking-[0.15em] transition-all flex items-center gap-2 ${
+                        shareSuccess 
+                          ? 'bg-green-50 text-green-600 cursor-default' 
+                          : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white active:scale-[0.95]'
+                      }`}
+                    >
+                      {shareSuccess ? (
+                        <>
+                          <CheckCircle2 className="w-3 h-3" /> Sent
+                        </>
+                      ) : (
+                        <>
+                          Share <ArrowRight className="w-3 h-3" />
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
             <div className="p-4 bg-slate-50 border-t border-slate-100 text-center">
               <span className="font-display text-sm tracking-tight text-slate-900 leading-none">
@@ -779,6 +858,26 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
         </motion.div>
       )}
       </AnimatePresence>
+      <AnimatePresence>
+        {showWhatsappPopup && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="fixed inset-0 z-[999] flex items-center justify-center pointer-events-none p-4"
+          >
+            <div className="bg-white/95 backdrop-blur-xl border border-slate-200 p-6 rounded-3xl shadow-[0_30px_60px_rgba(0,0,0,0.15)] flex flex-col items-center gap-4 max-w-[280px] w-full text-center pointer-events-auto">
+              <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center">
+                <CheckCircle2 className="w-6 h-6 text-green-600" />
+              </div>
+              <p className="text-[13px] font-bold text-slate-900 leading-relaxed tracking-tight">
+                Thanks! We'll share the experiment list with you shortly on WhatsApp.
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Hidden iframe for form submission to prevent page navigation */}
       <iframe name="hidden_enroll_iframe" style={{ display: 'none' }}></iframe>
     </div>
