@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Workshop } from '../types';
 import { RAW_WORKSHOPS } from '../data/curriculum';
 import Footer from './Footer';
-import { FlaskConical, Atom, Dna, Cpu, Grid, Zap, Magnet, Gauge, Search, Wind, Waves, Sun, Sparkles, Radio, Telescope, Fingerprint, X, CheckCircle2, ChevronRight, LayoutGrid, GraduationCap, BookOpen, Bug, Calendar, Lock, ArrowRight, Phone, User, Sigma } from 'lucide-react';
+import { FlaskConical, Atom, Dna, Cpu, Grid, Zap, Magnet, Gauge, Search, Wind, Waves, Sun, Sparkles, Radio, Telescope, Fingerprint, X, CheckCircle2, ChevronRight, LayoutGrid, GraduationCap, BookOpen, Bug, Calendar, Lock, ArrowRight, Phone, User, Sigma, Users, ChevronDown } from 'lucide-react';
 
 const getCategoryImage = (cat: string) => {
   switch(cat) {
@@ -69,6 +69,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
   const [enrollName, setEnrollName] = useState('');
   const [enrollPhone, setEnrollPhone] = useState('');
   const [enrollSlot, setEnrollSlot] = useState('');
+  const [enrollPeople, setEnrollPeople] = useState('1');
   const [sharePhone, setSharePhone] = useState('');
   const [shareSuccess, setShareSuccess] = useState(false);
   const [showWhatsappPopup, setShowWhatsappPopup] = useState(false);
@@ -252,12 +253,14 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
       const courseInput = form.elements.namedItem('course') as HTMLInputElement;
       const priceInput = form.elements.namedItem('price') as HTMLInputElement;
       const slotInput = form.elements.namedItem('slot') as HTMLInputElement;
+      const peopleInput = form.elements.namedItem('people') as HTMLInputElement;
 
-      if (courseInput && priceInput && slotInput && selectedWorkshop) {
+      if (courseInput && priceInput && slotInput && peopleInput && selectedWorkshop) {
           // Set values manually as requested
           courseInput.value = selectedWorkshop.title;
           priceInput.value = selectedWorkshop.price;
           slotInput.value = enrollSlot;
+          peopleInput.value = enrollPeople;
       } else if (!selectedWorkshop) {
           e.preventDefault();
           alert("Error: No workshop selected.");
@@ -284,6 +287,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
       setEnrollName('');
       setEnrollPhone('');
       setEnrollSlot('');
+      setEnrollPeople('1');
   };
 
   const renderWorkshopCard = (workshop: Workshop) => {
@@ -643,6 +647,12 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                 transition={{ duration: 0.5, ease: "easeOut" }}
                 className="bg-white rounded-xl shadow-2xl border border-slate-200 w-full max-w-sm overflow-hidden relative"
               >
+                <button 
+                    onClick={resetEnrollModal}
+                    className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-full transition-all z-10"
+                >
+                    <X className="w-4 h-4" />
+                </button>
                 
                 <div className="p-5">
                     {!enrollSuccess ? (
@@ -665,6 +675,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                                 <input type="hidden" name="course" />
                                 <input type="hidden" name="price" />
                                 <input type="hidden" name="slot" />
+                                <input type="hidden" name="people" />
                                 <div>
                                     <label className="block text-[10px] font-mono text-slate-400 uppercase tracking-widest mb-1.5 font-bold">Student Name</label>
                                     <div className="relative">
@@ -680,19 +691,38 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                                         />
                                     </div>
                                 </div>
-                                <div>
-                                    <label className="block text-[10px] font-mono text-slate-400 uppercase tracking-widest mb-1.5 font-bold">Phone Number</label>
-                                    <div className="relative">
-                                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
-                                        <input 
-                                            type="tel" 
-                                            name="phone"
-                                            required
-                                            value={enrollPhone}
-                                            onChange={(e) => setEnrollPhone(e.target.value)}
-                                            className="w-full bg-slate-50 border border-slate-200 pl-10 pr-4 py-2.5 text-sm text-slate-900 focus:border-indigo-600 focus:ring-0 outline-none rounded-lg transition-all"
-                                            placeholder="Enter contact number"
-                                        />
+                                <div className="flex gap-3">
+                                    <div className="flex-[1.5]">
+                                        <label className="block text-[10px] font-mono text-slate-400 uppercase tracking-widest mb-1.5 font-bold">Phone Number</label>
+                                        <div className="relative">
+                                            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+                                            <input 
+                                                type="tel" 
+                                                name="phone"
+                                                required
+                                                value={enrollPhone}
+                                                onChange={(e) => setEnrollPhone(e.target.value)}
+                                                className="w-full bg-slate-50 border border-slate-200 pl-10 pr-4 py-2.5 text-sm text-slate-900 focus:border-indigo-600 focus:ring-0 outline-none rounded-lg transition-all"
+                                                placeholder="Contact number"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="flex-1">
+                                        <label className="block text-[10px] font-mono text-slate-400 uppercase tracking-widest mb-1.5 font-bold whitespace-nowrap">No of Students</label>
+                                        <div className="relative">
+                                            <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 pointer-events-none" />
+                                            <select 
+                                                value={enrollPeople}
+                                                onChange={(e) => setEnrollPeople(e.target.value)}
+                                                className="w-full bg-slate-50 border border-slate-200 pl-9 pr-8 py-2.5 text-sm text-slate-900 focus:border-indigo-600 focus:ring-0 outline-none rounded-lg transition-all appearance-none cursor-pointer font-medium"
+                                            >
+                                                <option value="1">1</option>
+                                                <option value="2">2</option>
+                                                <option value="3">3</option>
+                                                <option value="4">4</option>
+                                            </select>
+                                            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+                                        </div>
                                     </div>
                                 </div>
 
@@ -768,15 +798,6 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                             </motion.div>
                         </div>
                     )}
-                </div>
-
-                <div className="bg-slate-50 p-4 border-t border-slate-100 flex justify-center">
-                     <button 
-                        onClick={resetEnrollModal}
-                        className="text-xs font-bold text-slate-400 hover:text-slate-900 uppercase tracking-wide"
-                     >
-                        Close Window
-                     </button>
                 </div>
               </motion.div>
           </motion.div>
