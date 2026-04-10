@@ -68,6 +68,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
   const [enrollSuccess, setEnrollSuccess] = useState(false);
   const [enrollName, setEnrollName] = useState('');
   const [enrollPhone, setEnrollPhone] = useState('');
+  const [enrollSlot, setEnrollSlot] = useState('');
   const [sharePhone, setSharePhone] = useState('');
   const [shareSuccess, setShareSuccess] = useState(false);
   const [showWhatsappPopup, setShowWhatsappPopup] = useState(false);
@@ -240,16 +241,23 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
           alert("Phone number must be exactly 10 digits");
           return;
       }
+      if (!enrollSlot) {
+          e.preventDefault();
+          alert("Please select a time slot");
+          return;
+      }
 
       // Ensure selectedWorkshop is available and set hidden inputs
       const form = e.currentTarget;
       const courseInput = form.elements.namedItem('course') as HTMLInputElement;
       const priceInput = form.elements.namedItem('price') as HTMLInputElement;
+      const slotInput = form.elements.namedItem('slot') as HTMLInputElement;
 
-      if (courseInput && priceInput && selectedWorkshop) {
+      if (courseInput && priceInput && slotInput && selectedWorkshop) {
           // Set values manually as requested
           courseInput.value = selectedWorkshop.title;
           priceInput.value = selectedWorkshop.price;
+          slotInput.value = enrollSlot;
       } else if (!selectedWorkshop) {
           e.preventDefault();
           alert("Error: No workshop selected.");
@@ -275,6 +283,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
       setEnrollSuccess(false);
       setEnrollName('');
       setEnrollPhone('');
+      setEnrollSlot('');
   };
 
   const renderWorkshopCard = (workshop: Workshop) => {
@@ -635,10 +644,10 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                 className="bg-white rounded-xl shadow-2xl border border-slate-200 w-full max-w-sm overflow-hidden relative"
               >
                 
-                <div className="p-6">
+                <div className="p-5">
                     {!enrollSuccess ? (
                         <>
-                            <div className="mb-6">
+                            <div className="mb-4">
                                 <span className="text-indigo-600 font-mono text-[10px] tracking-widest uppercase font-bold">Enrolment Request</span>
                                 <h3 className="text-xl font-display font-bold text-slate-900 mt-1">{enrollingWorkshop.title}</h3>
                                 <p className="text-xs text-slate-500 mt-1">
@@ -651,10 +660,11 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                                 action="https://script.google.com/macros/s/AKfycbwh6D4csv_XE_yn1caLnE4zQcoS6lBRT8bCe1eclEjM01g5YcKb0nKI0Jps8vHAhmbO/exec"
                                 target="hidden_enroll_iframe"
                                 onSubmit={handleEnrollSubmit} 
-                                className="space-y-4"
+                                className="space-y-3"
                             >
                                 <input type="hidden" name="course" />
                                 <input type="hidden" name="price" />
+                                <input type="hidden" name="slot" />
                                 <div>
                                     <label className="block text-[10px] font-mono text-slate-400 uppercase tracking-widest mb-1.5 font-bold">Student Name</label>
                                     <div className="relative">
@@ -665,7 +675,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                                             required
                                             value={enrollName}
                                             onChange={(e) => setEnrollName(e.target.value)}
-                                            className="w-full bg-slate-50 border border-slate-200 pl-10 pr-4 py-3 text-sm text-slate-900 focus:border-indigo-600 focus:ring-0 outline-none rounded-lg transition-all"
+                                            className="w-full bg-slate-50 border border-slate-200 pl-10 pr-4 py-2.5 text-sm text-slate-900 focus:border-indigo-600 focus:ring-0 outline-none rounded-lg transition-all"
                                             placeholder="Enter full name"
                                         />
                                     </div>
@@ -680,9 +690,43 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                                             required
                                             value={enrollPhone}
                                             onChange={(e) => setEnrollPhone(e.target.value)}
-                                            className="w-full bg-slate-50 border border-slate-200 pl-10 pr-4 py-3 text-sm text-slate-900 focus:border-indigo-600 focus:ring-0 outline-none rounded-lg transition-all"
+                                            className="w-full bg-slate-50 border border-slate-200 pl-10 pr-4 py-2.5 text-sm text-slate-900 focus:border-indigo-600 focus:ring-0 outline-none rounded-lg transition-all"
                                             placeholder="Enter contact number"
                                         />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-[10px] font-mono text-slate-400 uppercase tracking-widest mb-2 font-bold">Select Time Slot</label>
+                                    <div className="space-y-3">
+                                        {[
+                                            { date: '18th April Sunday', times: ['10 AM', '12 PM', '2 PM', '4 PM'] },
+                                            { date: '25th April Sunday', times: ['10 AM', '12 PM', '2 PM', '4 PM'] }
+                                        ].map((day) => (
+                                            <div key={day.date}>
+                                                <p className="text-[9px] text-slate-500 font-bold mb-1.5 uppercase tracking-wider">{day.date}</p>
+                                                <div className="grid grid-cols-4 gap-1.5">
+                                                    {day.times.map((time) => {
+                                                        const slotValue = `${day.date} - ${time}`;
+                                                        const isSelected = enrollSlot === slotValue;
+                                                        return (
+                                                            <button
+                                                                key={time}
+                                                                type="button"
+                                                                onClick={() => setEnrollSlot(slotValue)}
+                                                                className={`py-1.5 text-[9px] font-bold rounded-md transition-all border ${
+                                                                    isSelected 
+                                                                        ? 'bg-indigo-600 border-indigo-600 text-white shadow-md' 
+                                                                        : 'bg-white border-slate-200 text-slate-600 hover:border-indigo-300'
+                                                                }`}
+                                                            >
+                                                                {time}
+                                                            </button>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
 
