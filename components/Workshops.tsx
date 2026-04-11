@@ -70,6 +70,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
   const [enrollPhone, setEnrollPhone] = useState('');
   const [enrollSlot, setEnrollSlot] = useState('');
   const [enrollPeople, setEnrollPeople] = useState('1');
+  const [enrollConfirmed, setEnrollConfirmed] = useState(false);
   const [sharePhone, setSharePhone] = useState('');
   const [shareSuccess, setShareSuccess] = useState(false);
   const [showWhatsappPopup, setShowWhatsappPopup] = useState(false);
@@ -105,7 +106,13 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
   const workshopsData: Workshop[] = useMemo(() => {
     return RAW_WORKSHOPS.map((raw, idx) => {
       const expCount = raw.exps.length;
-      const calculatedPrice = expCount >= 5 ? 400 : 300;
+      let calculatedPrice = expCount >= 5 ? 400 : 300;
+      
+      // Grade 11-12 experiments are priced higher (500 or 600)
+      if (raw.grade >= 11) {
+          calculatedPrice = expCount >= 5 ? 600 : 500;
+      }
+      
       const calculatedDuration = expCount >= 5 ? '2 HOURS' : '1.5 HOURS';
 
       return {
@@ -247,30 +254,34 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
           alert("Please select a time slot");
           return;
       }
+      if (!enrollConfirmed) {
+          e.preventDefault();
+          alert("Please confirm that the session will be conducted at the student's home");
+          return;
+      }
 
-      // Ensure selectedWorkshop is available and set hidden inputs
-      const form = e.currentTarget;
-      const courseInput = form.elements.namedItem('course') as HTMLInputElement;
-      const priceInput = form.elements.namedItem('price') as HTMLInputElement;
-      const slotInput = form.elements.namedItem('slot') as HTMLInputElement;
-      const peopleInput = form.elements.namedItem('people') as HTMLInputElement;
-
-      if (courseInput && priceInput && slotInput && peopleInput && selectedWorkshop) {
-          // Set values manually as requested
-          courseInput.value = selectedWorkshop.title;
-          priceInput.value = selectedWorkshop.price;
-          slotInput.value = enrollSlot;
-          peopleInput.value = enrollPeople;
-      } else if (!selectedWorkshop) {
+      if (!selectedWorkshop) {
           e.preventDefault();
           alert("Error: No workshop selected.");
           return;
       }
 
-      // If valid, prevent default, set values, and submit programmatically
+      // Log the payload to confirm fields are included
+      const payload = {
+          name: enrollName,
+          phone: enrollPhone,
+          course: selectedWorkshop?.title || '',
+          price: selectedWorkshop?.price || '',
+          number_of_students: enrollPeople,
+          time_slot: enrollSlot
+      };
+      console.log("Submitting Enrollment Payload:", JSON.stringify(payload));
+
+      // If valid, prevent default, and submit programmatically
       // to ensure the browser has time to initiate the request before unmounting.
       e.preventDefault();
       
+      const form = e.currentTarget;
       // Submit the form programmatically to the hidden iframe
       form.submit();
       
@@ -288,6 +299,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
       setEnrollPhone('');
       setEnrollSlot('');
       setEnrollPeople('1');
+      setEnrollConfirmed(false);
   };
 
   const renderWorkshopCard = (workshop: Workshop) => {
@@ -424,24 +436,24 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
           {/* Mobile-only Header Controls (Sticky) */}
           <div className="md:hidden p-4 bg-white border-t border-slate-100 flex flex-col gap-3">
               <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-1 bg-slate-50 border border-slate-200 rounded-lg p-0.5">
+                  <div className="flex items-center space-x-1 bg-slate-50 border border-slate-200 rounded-lg p-0.5 shadow-sm">
                       <button 
                           onClick={() => setViewMode('topic')}
-                          className={`px-2 py-1 text-[9px] font-bold uppercase tracking-wider rounded-md transition-all ${viewMode === 'topic' ? 'bg-slate-900 text-white' : 'text-slate-500'}`}
+                          className={`px-2 py-1 text-[8px] font-bold uppercase tracking-wider rounded-md transition-all ${viewMode === 'topic' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-500 border border-transparent hover:border-slate-200'}`}
                       >
-                          Topic
+                          By Topic
                       </button>
                       <button 
                           onClick={() => setViewMode('age')}
-                          className={`px-2 py-1 text-[9px] font-bold uppercase tracking-wider rounded-md transition-all ${viewMode === 'age' ? 'bg-slate-900 text-white' : 'text-slate-500'}`}
+                          className={`px-2 py-1 text-[8px] font-bold uppercase tracking-wider rounded-md transition-all ${viewMode === 'age' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-500 border border-transparent hover:border-slate-200'}`}
                       >
-                          Age
+                          By Age
                       </button>
                       <button 
                           onClick={() => setViewMode('grade')}
-                          className={`px-2 py-1 text-[9px] font-bold uppercase tracking-wider rounded-md transition-all ${viewMode === 'grade' ? 'bg-slate-900 text-white' : 'text-slate-500'}`}
+                          className={`px-2 py-1 text-[8px] font-bold uppercase tracking-wider rounded-md transition-all ${viewMode === 'grade' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-500 border border-transparent hover:border-slate-200'}`}
                       >
-                          Grade
+                          By Grade
                       </button>
                   </div>
                   <div className="flex items-baseline space-x-1.5">
@@ -667,15 +679,15 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
 
                             <form 
                                 method="POST" 
-                                action="https://script.google.com/macros/s/AKfycbwh6D4csv_XE_yn1caLnE4zQcoS6lBRT8bCe1eclEjM01g5YcKb0nKI0Jps8vHAhmbO/exec"
+                                action="https://script.google.com/macros/s/AKfycbw-T-LGayP8mhq6LnP75LpFw12lM2lJkzDV-xnWZhubS9K5_YvzqbCXkVt5Q2KPFnhR/exec"
                                 target="hidden_enroll_iframe"
                                 onSubmit={handleEnrollSubmit} 
                                 className="space-y-3"
                             >
-                                <input type="hidden" name="course" />
-                                <input type="hidden" name="price" />
-                                <input type="hidden" name="slot" />
-                                <input type="hidden" name="people" />
+                                <input type="hidden" name="course" value={selectedWorkshop?.title || ''} />
+                                <input type="hidden" name="price" value={selectedWorkshop?.price || ''} />
+                                <input type="hidden" name="time_slot" value={enrollSlot} />
+                                <input type="hidden" name="number_of_students" value={enrollPeople} />
                                 <div>
                                     <label className="block text-[10px] font-mono text-slate-400 uppercase tracking-widest mb-1.5 font-bold">Student Name</label>
                                     <div className="relative">
@@ -714,7 +726,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                                             <select 
                                                 value={enrollPeople}
                                                 onChange={(e) => setEnrollPeople(e.target.value)}
-                                                className="w-full bg-slate-50 border border-slate-200 pl-9 pr-8 py-2.5 text-sm text-slate-900 focus:border-indigo-600 focus:ring-0 outline-none rounded-lg transition-all appearance-none cursor-pointer font-medium"
+                                                className="w-full bg-slate-50 border border-slate-200 pl-9 pr-8 py-2.5 text-sm text-slate-900 focus:border-indigo-600 focus:ring-0 outline-none rounded-lg transition-all appearance-none cursor-pointer"
                                             >
                                                 <option value="1">1</option>
                                                 <option value="2">2</option>
@@ -758,6 +770,23 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                                             </div>
                                         ))}
                                     </div>
+                                </div>
+
+                                <div className="flex items-start space-x-2 pt-1">
+                                    <div className="flex items-center h-5">
+                                        <input
+                                            id="confirm-place"
+                                            name="confirm_place"
+                                            type="checkbox"
+                                            required
+                                            checked={enrollConfirmed}
+                                            onChange={(e) => setEnrollConfirmed(e.target.checked)}
+                                            className="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500 cursor-pointer"
+                                        />
+                                    </div>
+                                    <label htmlFor="confirm-place" className="text-[10px] text-slate-500 leading-tight cursor-pointer select-none">
+                                        This session will be conducted at the student’s home. Please confirm if that works for you.
+                                    </label>
                                 </div>
 
                                 <div className="pt-2">

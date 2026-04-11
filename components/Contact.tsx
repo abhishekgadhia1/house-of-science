@@ -31,15 +31,10 @@ const Contact: React.FC = () => {
                   <span className="text-slate-500 group-hover:text-indigo-700 transition-colors font-medium shrink-0 text-sm">Location</span>
                   <div className="flex flex-col items-end text-right">
                      <span className="text-slate-900 font-mono text-xs sm:text-sm">Ahmedabad, Gujarat, India</span>
-                     <a 
-                        href="https://www.google.com/maps/search/House+of+Science+Ahmedabad" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-indigo-600 hover:text-indigo-700 text-xs font-mono mt-1 flex items-center group/link"
-                     >
+                     <div className="text-indigo-600/50 text-xs font-mono mt-1 flex items-center cursor-default">
                         View on Google Maps
-                        <ArrowUpRight className="w-3 h-3 ml-1 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
-                     </a>
+                        <ArrowUpRight className="w-3 h-3 ml-1" />
+                     </div>
                   </div>
                </div>
             </div>
