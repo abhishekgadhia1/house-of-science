@@ -69,7 +69,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
   const [enrollName, setEnrollName] = useState('');
   const [enrollPhone, setEnrollPhone] = useState('');
   const [enrollSlot, setEnrollSlot] = useState('');
-  const [enrollPeople, setEnrollPeople] = useState('1');
+  const [enrollPeople, setEnrollPeople] = useState('');
   const [enrollConfirmed, setEnrollConfirmed] = useState(false);
   const [sharePhone, setSharePhone] = useState('');
   const [shareSuccess, setShareSuccess] = useState(false);
@@ -249,6 +249,11 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
           alert("Phone number must be exactly 10 digits");
           return;
       }
+      if (!enrollPeople) {
+          e.preventDefault();
+          alert("Please select the number of students");
+          return;
+      }
       if (!enrollSlot) {
           e.preventDefault();
           alert("Please select a time slot");
@@ -298,7 +303,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
       setEnrollName('');
       setEnrollPhone('');
       setEnrollSlot('');
-      setEnrollPeople('1');
+      setEnrollPeople('');
       setEnrollConfirmed(false);
   };
 
@@ -727,8 +732,9 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                                             <select 
                                                 value={enrollPeople}
                                                 onChange={(e) => setEnrollPeople(e.target.value)}
-                                                className="w-full bg-slate-50 border border-slate-200 pl-9 pr-8 py-2.5 text-sm text-slate-900 focus:border-indigo-600 focus:ring-0 outline-none rounded-lg transition-all appearance-none cursor-pointer"
+                                                className={`w-full bg-slate-50 border border-slate-200 pl-9 pr-8 py-2.5 text-sm focus:border-indigo-600 focus:ring-0 outline-none rounded-lg transition-all appearance-none cursor-pointer ${enrollPeople ? 'text-slate-900' : 'text-slate-400'}`}
                                             >
+                                                <option value="">Select</option>
                                                 <option value="1">1</option>
                                                 <option value="2">2</option>
                                                 <option value="3">3</option>
