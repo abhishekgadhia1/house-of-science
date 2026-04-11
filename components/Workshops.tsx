@@ -344,9 +344,10 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
         {/* Footer Area - Aligned Actions */}
         <div className="border-t border-slate-100 pt-3 flex items-center justify-between mt-auto">
             <div className="flex flex-col gap-0.5">
-                 <span className={`text-sm font-bold ${isComingSoon ? 'text-slate-400 line-through decoration-slate-300' : 'text-indigo-600'}`}>
+                 {/* Pricing hidden as requested */}
+                 {/* <span className={`text-sm font-bold ${isComingSoon ? 'text-slate-400 line-through decoration-slate-300' : 'text-indigo-600'}`}>
                     ₹{workshop.price}
-                 </span>
+                 </span> */}
                  <button 
                     onClick={(e) => {
                       e.stopPropagation();

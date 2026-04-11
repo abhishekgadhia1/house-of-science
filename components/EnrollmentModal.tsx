@@ -275,7 +275,7 @@ const EnrollmentModal: React.FC<EnrollmentModalProps> = ({ isOpen, onClose }) =>
                               {item.subject}
                             </p>
                             <h4 className="text-xs md:text-sm font-bold text-slate-900">{item.topic}</h4>
-                            <p className="text-[11px] md:text-xs text-slate-400 md:text-slate-500 mt-0.5">₹{item.price}</p>
+                            {/* <p className="text-[11px] md:text-xs text-slate-400 md:text-slate-500 mt-0.5">₹{item.price}</p> */}
                           </div>
                           <button 
                             onClick={() => handleRemoveTopic(item.id)}
@@ -291,7 +291,8 @@ const EnrollmentModal: React.FC<EnrollmentModalProps> = ({ isOpen, onClose }) =>
 
                 {/* Footer / Total */}
                 <div className="border-t border-slate-100 md:border-slate-200 pt-4 md:pt-8 mt-auto">
-                  <div className="flex justify-between items-end mb-2 md:mb-8">
+                  {/* Pricing hidden as requested */}
+                  {/* <div className="flex justify-between items-end mb-2 md:mb-8">
                     <div>
                       <p className="text-[10px] md:text-xs font-mono font-bold text-slate-400 uppercase tracking-widest mb-0.5">Total Amount</p>
                       <p className="text-xl md:text-3xl font-display font-bold text-slate-900">₹{totalPrice}</p>
@@ -299,7 +300,7 @@ const EnrollmentModal: React.FC<EnrollmentModalProps> = ({ isOpen, onClose }) =>
                     <p className="text-[9px] md:text-[10px] text-slate-400 max-w-[120px] text-right leading-tight font-mono md:font-sans">
                       * Final pricing may vary based on batch size.
                     </p>
-                  </div>
+                  </div> */}
 
                   <button
                     onClick={handleSubmit}
