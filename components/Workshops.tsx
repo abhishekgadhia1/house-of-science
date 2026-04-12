@@ -749,11 +749,11 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                                     <label className="block text-[10px] font-mono text-slate-400 uppercase tracking-widest mb-2 font-bold">Select Time Slot</label>
                                     <div className="space-y-3">
                                         {[
-                                            { date: '18th April Sunday', times: ['10 AM', '12 PM', '2 PM', '4 PM'] },
-                                            { date: '25th April Sunday', times: ['10 AM', '12 PM', '2 PM', '4 PM'] }
+                                            { date: '19th April 2026 (Sunday)', times: ['10 AM', '12 PM', '2 PM', '4 PM'] },
+                                            { date: '26th April 2026 (Sunday)', times: ['10 AM', '12 PM', '2 PM', '4 PM'] }
                                         ].map((day) => (
                                             <div key={day.date}>
-                                                <p className="text-[9px] text-slate-500 font-bold mb-1.5 uppercase tracking-wider">{day.date}</p>
+                                                <p className="text-[9px] text-slate-500 font-bold mb-1.5 tracking-wider">{day.date}</p>
                                                 <div className="grid grid-cols-4 gap-1.5">
                                                     {day.times.map((time) => {
                                                         const slotValue = `${day.date} - ${time}`;
