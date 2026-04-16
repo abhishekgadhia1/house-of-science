@@ -75,6 +75,50 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
   const [shareSuccess, setShareSuccess] = useState(false);
   const [showWhatsappPopup, setShowWhatsappPopup] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  
+  // Automated Enrollment Dates
+  const enrollmentDays = useMemo(() => {
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+    let daysUntilNextSunday = (7 - dayOfWeek) % 7;
+    if (daysUntilNextSunday === 0) daysUntilNextSunday = 7;
+    
+    let firstSunday = new Date(today);
+    if (daysUntilNextSunday < 4) {
+      firstSunday.setDate(today.getDate() + daysUntilNextSunday + 7);
+    } else {
+      firstSunday.setDate(today.getDate() + daysUntilNextSunday);
+    }
+    
+    let secondSunday = new Date(firstSunday);
+    secondSunday.setDate(firstSunday.getDate() + 7);
+    
+    const formatDate = (date: Date) => {
+      const d = date.getDate();
+      const month = date.toLocaleString('default', { month: 'long' });
+      const year = date.getFullYear();
+      
+      let suffix = 'th';
+      if (d === 1 || d === 21 || d === 31) suffix = 'st';
+      else if (d === 2 || d === 22) suffix = 'nd';
+      else if (d === 3 || d === 23) suffix = 'rd';
+      
+      return {
+        full: `${d}${suffix} ${month} ${year} (Sunday)`,
+        day: d,
+        suffix: suffix,
+        rest: `${month} ${year} (Sunday)`
+      };
+    };
+    
+    const d1 = formatDate(firstSunday);
+    const d2 = formatDate(secondSunday);
+    
+    return [
+      { date: d1.full, display: d1, times: ['10 AM', '12 PM', '2 PM', '4 PM'] },
+      { date: d2.full, display: d2, times: ['10 AM', '12 PM', '2 PM', '4 PM'] }
+    ];
+  }, []);
 
   // Sync state if props change (re-navigation)
   useEffect(() => {
@@ -748,12 +792,13 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                                 <div>
                                     <label className="block text-[10px] font-mono text-slate-400 uppercase tracking-widest mb-2 font-bold">Select Time Slot</label>
                                     <div className="space-y-3">
-                                        {[
-                                            { date: '19th April 2026 (Sunday)', times: ['10 AM', '12 PM', '2 PM', '4 PM'] },
-                                            { date: '26th April 2026 (Sunday)', times: ['10 AM', '12 PM', '2 PM', '4 PM'] }
-                                        ].map((day) => (
+                                        {enrollmentDays.map((day) => (
                                             <div key={day.date}>
-                                                <p className="text-[9px] text-slate-500 font-bold mb-1.5 tracking-wider">{day.date}</p>
+                                                <p className="text-[9px] text-slate-500 font-bold mb-1.5 tracking-wider">
+                                                    {day.display.day}
+                                                    <span className="text-[0.7em] lowercase align-top">{day.display.suffix}</span>
+                                                    {' '}{day.display.rest}
+                                                </p>
                                                 <div className="grid grid-cols-4 gap-1.5">
                                                     {day.times.map((time) => {
                                                         const slotValue = `${day.date} - ${time}`;
