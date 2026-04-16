@@ -53,7 +53,7 @@ const Hero: React.FC<HeroProps> = ({ onCtaClick, onSearchNavigate }) => {
         <div className="flex flex-col items-center text-center md:items-start md:text-left space-y-3 md:space-y-8 animate-slide-up order-1">
               <div className="flex items-center justify-center md:justify-start space-x-4">
                  <div className="h-px w-12 bg-indigo-600"></div>
-                 <span className="text-indigo-600 font-mono text-[10px] md:text-xs tracking-widest uppercase font-bold">Est. 2025</span>
+                 <span className="text-indigo-600 font-mono text-[10px] md:text-xs tracking-widest uppercase font-bold">in ahmedabad</span>
               </div>
               
               <h1 className="text-3xl md:text-7xl font-display font-bold text-slate-900 tracking-tight leading-[1.05]">
