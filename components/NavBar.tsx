@@ -40,6 +40,9 @@ const NavBar: React.FC<NavBarProps> = ({ currentSection, onNavigate, onEnrolClic
             <span className="font-display text-2xl tracking-tight text-indigo-600 leading-none transition-colors duration-300">
               houseof<span className="font-extrabold text-black">science</span>
             </span>
+            <span className="md:hidden ml-2 text-[9px] font-mono font-bold text-slate-400 uppercase tracking-[0.15em] border border-slate-200 px-2 py-0.5 rounded flex items-center h-fit translate-y-[3px]">
+              Ahmedabad
+            </span>
           </div>
 
           {/* Desktop Menu */}
