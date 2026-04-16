@@ -64,13 +64,13 @@ const Hero: React.FC<HeroProps> = ({ onCtaClick, onSearchNavigate }) => {
 
               <div className="flex flex-col items-center md:items-start gap-4 pt-1 md:pt-4">
                   <button onClick={onCtaClick} className="bg-slate-900 text-white px-5 py-2.5 md:px-8 md:py-4 rounded-lg text-[10px] md:text-xs font-bold uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-lg hover:shadow-xl flex items-center text-center">
-                    See Experiments
+                    Experiment List
                     <ArrowRight className="ml-2 w-4 h-4 flex-shrink-0" />
                   </button>
                   
                   {/* Value Prop Text */}
-                  <p className="text-[8px] md:text-[11px] font-semibold text-slate-400 tracking-[0.2em] uppercase whitespace-nowrap md:mt-8">
-                    Pick a Topic <span className="text-indigo-300 mx-1">•</span> We Visit <span className="text-indigo-300 mx-1">•</span> You Build
+                  <p className="text-[8px] md:text-[11px] font-semibold text-slate-500 tracking-[0.2em] uppercase whitespace-nowrap md:mt-8">
+                    Pick a Topic <span className="text-indigo-400 mx-1">•</span> We Visit <span className="text-indigo-400 mx-1">•</span> You Build
                   </p>
               </div>
         </div>

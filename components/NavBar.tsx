@@ -13,7 +13,7 @@ const NavBar: React.FC<NavBarProps> = ({ currentSection, onNavigate, onEnrolClic
 
   const navItems = [
     { id: NavSection.HOME, label: 'Home' },
-    { id: NavSection.WORKSHOPS, label: 'Workshops' },
+    { id: NavSection.WORKSHOPS, label: 'Experiment List' },
     { id: NavSection.CONTACT, label: 'Contact' },
   ];
 
