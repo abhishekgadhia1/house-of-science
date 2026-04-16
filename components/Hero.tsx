@@ -63,9 +63,9 @@ const Hero: React.FC<HeroProps> = ({ onCtaClick, onSearchNavigate }) => {
               </h1>
 
               <div className="flex items-center justify-center md:justify-start gap-4 pt-1 md:pt-4">
-                  <button onClick={onCtaClick} className="bg-slate-900 text-white px-5 py-2.5 md:px-8 md:py-4 rounded-lg text-[10px] md:text-xs font-bold uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-lg hover:shadow-xl flex items-center">
-                    Browse Modules
-                    <ArrowRight className="ml-2 w-4 h-4" />
+                  <button onClick={onCtaClick} className="bg-slate-900 text-white px-5 py-2.5 md:px-8 md:py-4 rounded-lg text-[10px] md:text-xs font-bold uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-lg hover:shadow-xl flex items-center text-center">
+                    Browse Experiments
+                    <ArrowRight className="ml-2 w-4 h-4 flex-shrink-0" />
                   </button>
               </div>
         </div>
