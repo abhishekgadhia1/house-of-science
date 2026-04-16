@@ -69,15 +69,6 @@ const App: React.FC = () => {
         isOpen={isEnrollModalOpen} 
         onClose={() => setIsEnrollModalOpen(false)} 
       />
-
-      {/* Mobile Bottom Value Prop - Only on Home */}
-      {currentSection === NavSection.HOME && (
-        <div className="md:hidden py-3 px-2 z-40">
-          <p className="text-[8px] font-bold text-slate-400 tracking-wider uppercase text-center whitespace-nowrap">
-            We bring all equipment <span className="text-indigo-300 mx-1">•</span> Real experiments <span className="text-indigo-300 mx-1">•</span> At your home
-          </p>
-        </div>
-      )}
     </div>
   );
 };
