@@ -70,7 +70,7 @@ const Hero: React.FC<HeroProps> = ({ onCtaClick, onSearchNavigate }) => {
                   
                   {/* Value Prop Text */}
                   <p className="text-[8px] md:text-[11px] font-semibold text-slate-400 tracking-[0.2em] uppercase whitespace-nowrap md:mt-8">
-                    Pick a Topic <span className="text-indigo-300 mx-1">•</span> We Come to You <span className="text-indigo-300 mx-1">•</span> You Build
+                    Pick a Topic <span className="text-indigo-300 mx-1">•</span> We Visit <span className="text-indigo-300 mx-1">•</span> You Build
                   </p>
               </div>
         </div>
