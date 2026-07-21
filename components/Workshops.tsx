@@ -53,6 +53,9 @@ interface WorkshopsProps {
 }
 
 const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) => {
+  // Toggle to easily show/hide the home confirmation checkbox
+  const SHOW_HOME_CONFIRMATION = false;
+
   // Default to TOPIC view as requested
   const [viewMode, setViewMode] = useState<ViewMode>('topic');
   const [selectedSubject, setSelectedSubject] = useState<string>(initialSubject || 'Physics');
@@ -70,7 +73,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
   const [enrollPhone, setEnrollPhone] = useState('');
   const [enrollSlot, setEnrollSlot] = useState('');
   const [enrollPeople, setEnrollPeople] = useState('');
-  const [enrollConfirmed, setEnrollConfirmed] = useState(false);
+  const [enrollConfirmed, setEnrollConfirmed] = useState(!SHOW_HOME_CONFIRMATION);
   const [sharePhone, setSharePhone] = useState('');
   const [shareSuccess, setShareSuccess] = useState(false);
   const [showWhatsappPopup, setShowWhatsappPopup] = useState(false);
@@ -303,7 +306,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
           alert("Please select a time slot");
           return;
       }
-      if (!enrollConfirmed) {
+      if (SHOW_HOME_CONFIRMATION && !enrollConfirmed) {
           e.preventDefault();
           alert("Please confirm that the session will be conducted at the student's home");
           return;
@@ -348,7 +351,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
       setEnrollPhone('');
       setEnrollSlot('');
       setEnrollPeople('');
-      setEnrollConfirmed(false);
+      setEnrollConfirmed(!SHOW_HOME_CONFIRMATION);
   };
 
   const renderWorkshopCard = (workshop: Workshop) => {
@@ -824,22 +827,24 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                                     </div>
                                 </div>
 
-                                <div className="flex items-start space-x-2 pt-1">
-                                    <div className="flex items-center h-5">
-                                        <input
-                                            id="confirm-place"
-                                            name="confirm_place"
-                                            type="checkbox"
-                                            required
-                                            checked={enrollConfirmed}
-                                            onChange={(e) => setEnrollConfirmed(e.target.checked)}
-                                            className="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500 cursor-pointer"
-                                        />
+                                {SHOW_HOME_CONFIRMATION && (
+                                    <div className="flex items-start space-x-2 pt-1">
+                                        <div className="flex items-center h-5">
+                                            <input
+                                                id="confirm-place"
+                                                name="confirm_place"
+                                                type="checkbox"
+                                                required
+                                                checked={enrollConfirmed}
+                                                onChange={(e) => setEnrollConfirmed(e.target.checked)}
+                                                className="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500 cursor-pointer"
+                                            />
+                                        </div>
+                                        <label htmlFor="confirm-place" className="text-[10px] text-slate-500 leading-tight cursor-pointer select-none">
+                                            This session will be conducted at the student’s home. Please confirm if that works for you.
+                                        </label>
                                     </div>
-                                    <label htmlFor="confirm-place" className="text-[10px] text-slate-500 leading-tight cursor-pointer select-none">
-                                        This session will be conducted at the student’s home. Please confirm if that works for you.
-                                    </label>
-                                </div>
+                                )}
 
                                 <div className="pt-2">
                                     <button 
