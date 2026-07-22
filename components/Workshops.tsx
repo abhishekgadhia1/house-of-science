@@ -83,18 +83,18 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
   const enrollmentDays = useMemo(() => {
     const today = new Date();
     const dayOfWeek = today.getDay();
-    let daysUntilNextSunday = (7 - dayOfWeek) % 7;
-    if (daysUntilNextSunday === 0) daysUntilNextSunday = 7;
+    let daysUntilNextSaturday = (6 - dayOfWeek + 7) % 7;
+    if (daysUntilNextSaturday === 0) daysUntilNextSaturday = 7;
     
-    let firstSunday = new Date(today);
-    if (daysUntilNextSunday < 4) {
-      firstSunday.setDate(today.getDate() + daysUntilNextSunday + 7);
+    let firstSaturday = new Date(today);
+    if (daysUntilNextSaturday < 4) {
+      firstSaturday.setDate(today.getDate() + daysUntilNextSaturday + 7);
     } else {
-      firstSunday.setDate(today.getDate() + daysUntilNextSunday);
+      firstSaturday.setDate(today.getDate() + daysUntilNextSaturday);
     }
     
-    let secondSunday = new Date(firstSunday);
-    secondSunday.setDate(firstSunday.getDate() + 7);
+    let secondSaturday = new Date(firstSaturday);
+    secondSaturday.setDate(firstSaturday.getDate() + 7);
     
     const formatDate = (date: Date) => {
       const d = date.getDate();
@@ -107,19 +107,19 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
       else if (d === 3 || d === 23) suffix = 'rd';
       
       return {
-        full: `${d}${suffix} ${month} ${year} (Sunday)`,
+        full: `${d}${suffix} ${month} ${year} (Saturday)`,
         day: d,
         suffix: suffix,
-        rest: `${month} ${year} (Sunday)`
+        rest: `${month} ${year} (Saturday)`
       };
     };
     
-    const d1 = formatDate(firstSunday);
-    const d2 = formatDate(secondSunday);
+    const d1 = formatDate(firstSaturday);
+    const d2 = formatDate(secondSaturday);
     
     return [
-      { date: d1.full, display: d1, times: ['10 AM', '12 PM', '2 PM', '4 PM'] },
-      { date: d2.full, display: d2, times: ['10 AM', '12 PM', '2 PM', '4 PM'] }
+      { date: d1.full, display: d1, times: ['8 AM', '10 AM', '12 PM', '2 PM'] },
+      { date: d2.full, display: d2, times: ['8 AM', '10 AM', '12 PM', '2 PM'] }
     ];
   }, []);
 
@@ -288,7 +288,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
       // Validation
       if (!enrollName.trim()) {
           e.preventDefault();
-          alert("Please enter student name");
+          alert("Please enter school name");
           return;
       }
       if (enrollPhone.length !== 10 || !/^\d+$/.test(enrollPhone)) {
@@ -298,7 +298,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
       }
       if (!enrollPeople) {
           e.preventDefault();
-          alert("Please select the number of students");
+          alert("Please enter the number of students");
           return;
       }
       if (!enrollSlot) {
@@ -742,7 +742,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                                 <input type="hidden" name="time_slot" value={enrollSlot} />
                                 <input type="hidden" name="number_of_students" value={enrollPeople} />
                                 <div>
-                                    <label className="block text-[10px] font-mono text-slate-400 uppercase tracking-widest mb-1.5 font-bold">Student Name</label>
+                                    <label className="block text-[10px] font-mono text-slate-400 uppercase tracking-widest mb-1.5 font-bold">School Name</label>
                                     <div className="relative">
                                         <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
                                         <input 
@@ -752,7 +752,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                                             value={enrollName}
                                             onChange={(e) => setEnrollName(e.target.value)}
                                             className="w-full bg-slate-50 border border-slate-200 pl-10 pr-4 py-2.5 text-sm text-slate-900 focus:border-indigo-600 focus:ring-0 outline-none rounded-lg transition-all"
-                                            placeholder="Enter full name"
+                                            placeholder="Enter school name"
                                         />
                                     </div>
                                 </div>
@@ -776,18 +776,13 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                                         <label className="block text-[10px] font-mono text-slate-400 uppercase tracking-widest mb-1.5 font-bold whitespace-nowrap">No of Students</label>
                                         <div className="relative">
                                             <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 pointer-events-none" />
-                                            <select 
+                                            <input 
+                                                type="number"
+                                                min="1"
                                                 value={enrollPeople}
                                                 onChange={(e) => setEnrollPeople(e.target.value)}
-                                                className={`w-full bg-slate-50 border border-slate-200 pl-9 pr-8 py-2.5 text-sm focus:border-indigo-600 focus:ring-0 outline-none rounded-lg transition-all appearance-none cursor-pointer ${enrollPeople ? 'text-slate-900' : 'text-slate-400'}`}
-                                            >
-                                                <option value="">Select</option>
-                                                <option value="1">1</option>
-                                                <option value="2">2</option>
-                                                <option value="3">3</option>
-                                                <option value="4">4</option>
-                                            </select>
-                                            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+                                                className={`w-full bg-slate-50 border border-slate-200 pl-10 pr-4 py-2.5 text-sm text-slate-900 focus:border-indigo-600 focus:ring-0 outline-none rounded-lg transition-all ${enrollPeople ? 'text-slate-900' : 'text-slate-400'}`}
+                                            />
                                         </div>
                                     </div>
                                 </div>
@@ -922,7 +917,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
               </button>
             </div>
             <div className="p-6 max-h-[60vh] overflow-y-auto custom-scrollbar bg-slate-50/50 flex flex-col md:flex-row gap-6">
-              <div className="flex-1 blur-[4px]">
+              <div className={`flex-1 ${viewingExperiments.title.toLowerCase().includes('alternating current') ? '' : 'blur-[4px]'}`}>
                 <ul className="space-y-3">
                   {viewingExperiments.experimentList && viewingExperiments.experimentList.map((exp, index) => (
                     <li key={index} className="flex items-start gap-3 text-sm text-slate-700">
