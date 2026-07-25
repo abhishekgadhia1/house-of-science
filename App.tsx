@@ -7,26 +7,21 @@ import AiExperiment from './components/AiExperiment';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import EnrollmentModal from './components/EnrollmentModal';
-import UpgradeModal from './components/UpgradeModal';
 
 const App: React.FC = () => {
   const [currentSection, setCurrentSection] = useState<NavSection>(NavSection.HOME);
   const [workshopFilters, setWorkshopFilters] = useState<{subject?: string, query?: string}>({});
   const [isEnrollModalOpen, setIsEnrollModalOpen] = useState(false);
-  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
 
   const handleNavigate = (section: NavSection) => {
-    if (section === NavSection.WORKSHOPS) {
-      setIsUpgradeModalOpen(true);
-      return;
-    }
     // Clear filters when standard navigation occurs to ensure fresh state (search text becomes null and void)
     setWorkshopFilters({});
     setCurrentSection(section);
   };
 
   const handleWorkshopNavigate = (subject?: string, query?: string) => {
-    setIsUpgradeModalOpen(true);
+    setWorkshopFilters({ subject, query });
+    setCurrentSection(NavSection.WORKSHOPS);
   };
 
   const renderContent = () => {
@@ -73,11 +68,6 @@ const App: React.FC = () => {
       <EnrollmentModal 
         isOpen={isEnrollModalOpen} 
         onClose={() => setIsEnrollModalOpen(false)} 
-      />
-
-      <UpgradeModal 
-        isOpen={isUpgradeModalOpen} 
-        onClose={() => setIsUpgradeModalOpen(false)} 
       />
     </div>
   );
