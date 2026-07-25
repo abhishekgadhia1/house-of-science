@@ -917,7 +917,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
               </button>
             </div>
             <div className="p-6 max-h-[60vh] overflow-y-auto custom-scrollbar bg-slate-50/50 flex flex-col md:flex-row gap-6">
-              <div className={`flex-1 ${viewingExperiments.title.toLowerCase().includes('alternating current') ? '' : 'blur-[4px]'}`}>
+              <div className="flex-1 blur-[4px]">
                 <ul className="space-y-3">
                   {viewingExperiments.experimentList && viewingExperiments.experimentList.map((exp, index) => (
                     <li key={index} className="flex items-start gap-3 text-sm text-slate-700">
