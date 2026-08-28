@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Workshop } from '../types';
 import { RAW_WORKSHOPS } from '../data/curriculum';
 import Footer from './Footer';
-import { FlaskConical, Atom, Dna, Cpu, Grid, Zap, Magnet, Gauge, Search, Wind, Waves, Sun, Sparkles, Radio, Telescope, Fingerprint, X, CheckCircle2, ChevronRight, LayoutGrid, GraduationCap, BookOpen, Bug, Calendar, Lock, ArrowRight, Phone, User, Sigma, Users, ChevronDown } from 'lucide-react';
+import { FlaskConical, Atom, Dna, Cpu, Grid, Zap, Magnet, Gauge, Search, Wind, Waves, Sun, Sparkles, Radio, Telescope, Fingerprint, X, CheckCircle2, ChevronRight, LayoutGrid, GraduationCap, BookOpen, Bug, Calendar, Lock, ArrowRight, Phone, User, Sigma, Users, ChevronDown, MapPin, Info } from 'lucide-react';
 
 const getCategoryImage = (cat: string) => {
   switch(cat) {
@@ -52,6 +52,23 @@ interface WorkshopsProps {
   initialQuery?: string;
 }
 
+const AREAS = [
+  'Ambawadi',
+  'Anandnagar',
+  'Bodakdev',
+  'Bopal',
+  'Jodhpur',
+  'Naranpura',
+  'Navrangpura',
+  'Prahladnagar',
+  'Satellite',
+  'Shela',
+  'Shilaj',
+  'South Bopal',
+  'Thaltej',
+  'Vastrapur'
+];
+
 const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) => {
   // Toggle to easily show/hide the home confirmation checkbox
   const SHOW_HOME_CONFIRMATION = false;
@@ -71,34 +88,67 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
   const [enrollSuccess, setEnrollSuccess] = useState(false);
   const [enrollName, setEnrollName] = useState('');
   const [enrollPhone, setEnrollPhone] = useState('');
+  const [enrollArea, setEnrollArea] = useState('');
+  const [isAreaDropdownOpen, setIsAreaDropdownOpen] = useState(false);
+  const areaDropdownRef = useRef<HTMLDivElement>(null);
   const [enrollSlot, setEnrollSlot] = useState('');
-  const [enrollPeople, setEnrollPeople] = useState('');
+  const [enrollPeople, setEnrollPeople] = useState('1');
   const [enrollConfirmed, setEnrollConfirmed] = useState(!SHOW_HOME_CONFIRMATION);
   const [sharePhone, setSharePhone] = useState('');
   const [shareSuccess, setShareSuccess] = useState(false);
   const [showWhatsappPopup, setShowWhatsappPopup] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (areaDropdownRef.current && !areaDropdownRef.current.contains(event.target as Node)) {
+        setIsAreaDropdownOpen(false);
+      }
+    };
+    if (isAreaDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isAreaDropdownOpen]);
   
-  // Automated Enrollment Dates
+  // Automated Enrollment Dates based on selected Area
   const enrollmentDays = useMemo(() => {
+    const normalizedArea = (enrollArea || '').toLowerCase().replace(/[\s_-]+/g, '');
+    const saturdayAreas = ['vastrapur', 'satellite', 'jodhpur', 'bodakdev', 'prahladnagar', 'anandnagar'];
+    const sundayAreas = ['thaltej', 'shilaj', 'shela', 'bopal', 'southbopal'];
+
+    let targetDayIndex = 5; // Friday for rest / default
+    let targetDayName = 'Friday';
+
+    if (saturdayAreas.includes(normalizedArea)) {
+      targetDayIndex = 6;
+      targetDayName = 'Saturday';
+    } else if (sundayAreas.includes(normalizedArea)) {
+      targetDayIndex = 0;
+      targetDayName = 'Sunday';
+    } else {
+      targetDayIndex = 5;
+      targetDayName = 'Friday';
+    }
+
     const today = new Date();
     const dayOfWeek = today.getDay();
-    let daysUntilNextSaturday = (6 - dayOfWeek + 7) % 7;
-    if (daysUntilNextSaturday === 0) daysUntilNextSaturday = 7;
+    let daysUntilNext = (targetDayIndex - dayOfWeek + 7) % 7;
+    if (daysUntilNext === 0) daysUntilNext = 7;
     
-    let firstSaturday = new Date(today);
-    if (daysUntilNextSaturday < 4) {
-      firstSaturday.setDate(today.getDate() + daysUntilNextSaturday + 7);
+    let firstDate = new Date(today);
+    if (daysUntilNext < 4) {
+      firstDate.setDate(today.getDate() + daysUntilNext + 7);
     } else {
-      firstSaturday.setDate(today.getDate() + daysUntilNextSaturday);
+      firstDate.setDate(today.getDate() + daysUntilNext);
     }
-    
-    let secondSaturday = new Date(firstSaturday);
-    secondSaturday.setDate(firstSaturday.getDate() + 7);
     
     const formatDate = (date: Date) => {
       const d = date.getDate();
-      const month = date.toLocaleString('default', { month: 'long' });
+      const fullMonth = date.toLocaleString('default', { month: 'long' });
+      const shortMonth = date.toLocaleString('default', { month: 'short' });
       const year = date.getFullYear();
       
       let suffix = 'th';
@@ -107,21 +157,40 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
       else if (d === 3 || d === 23) suffix = 'rd';
       
       return {
-        full: `${d}${suffix} ${month} ${year} (Saturday)`,
+        full: `${d}${suffix} ${fullMonth} ${year} (${targetDayName})`,
         day: d,
         suffix: suffix,
-        rest: `${month} ${year} (Saturday)`
+        rest: `${fullMonth} (${targetDayName})`,
+        fullRest: `${fullMonth} ${year} (${targetDayName})`
       };
     };
     
-    const d1 = formatDate(firstSaturday);
-    const d2 = formatDate(secondSaturday);
-    
-    return [
-      { date: d1.full, display: d1, times: ['8 AM', '10 AM', '12 PM', '2 PM'] },
-      { date: d2.full, display: d2, times: ['8 AM', '10 AM', '12 PM', '2 PM'] }
-    ];
-  }, []);
+    const days = [];
+    const curr = new Date(firstDate);
+    for (let i = 0; i < 4; i++) {
+      const formatted = formatDate(curr);
+      days.push({
+        date: formatted.full,
+        display: formatted,
+        times: ['8 AM', '10 AM', '12 PM', '2 PM']
+      });
+      curr.setDate(curr.getDate() + 7);
+    }
+
+    return days;
+  }, [enrollArea]);
+
+  // Dynamic fee calculation with group discounts based on number of students:
+  // - 1 student: Standard rate (₹basePrice)
+  // - 2 students: 20% off total
+  // - 3 students: 30% off total (max 3 allowed)
+  const basePrice = (selectedWorkshop && parseFloat(selectedWorkshop.price)) || 300;
+  const parsedStudents = parseInt(enrollPeople, 10);
+  const clampedStudents = parsedStudents > 3 ? 3 : parsedStudents > 0 ? parsedStudents : 1;
+  const studentCount = clampedStudents;
+  const discountRate = studentCount === 2 ? 0.20 : studentCount === 3 ? 0.30 : 0;
+  const calculatedFee = Math.round(studentCount * basePrice * (1 - discountRate));
+  const perStudentFee = Math.round(calculatedFee / studentCount);
 
   // Sync state if props change (re-navigation)
   useEffect(() => {
@@ -301,6 +370,11 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
           alert("Please enter the number of students");
           return;
       }
+      if (!enrollArea) {
+          e.preventDefault();
+          alert("Please select an area");
+          return;
+      }
       if (!enrollSlot) {
           e.preventDefault();
           alert("Please select a time slot");
@@ -323,8 +397,9 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
           name: enrollName,
           phone: enrollPhone,
           course: selectedWorkshop?.title || '',
-          price: selectedWorkshop?.price || '',
-          number_of_students: enrollPeople,
+          price: calculatedFee ? `₹${calculatedFee}` : selectedWorkshop?.price || '',
+          number_of_students: enrollPeople || '1',
+          area: enrollArea,
           time_slot: enrollSlot
       };
       console.log("Submitting Enrollment Payload:", JSON.stringify(payload));
@@ -349,8 +424,10 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
       setEnrollSuccess(false);
       setEnrollName('');
       setEnrollPhone('');
+      setEnrollArea('');
+      setIsAreaDropdownOpen(false);
       setEnrollSlot('');
-      setEnrollPeople('');
+      setEnrollPeople('1');
       setEnrollConfirmed(!SHOW_HOME_CONFIRMATION);
   };
 
@@ -703,14 +780,14 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.6, ease: "easeInOut" }}
-            className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4"
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto"
           >
               <motion.div 
-                initial={{ scale: 0.95, opacity: 0, y: 20 }}
+                initial={{ scale: 0.95, opacity: 1, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.95, opacity: 0, y: 20 }}
                 transition={{ duration: 0.5, ease: "easeOut" }}
-                className="bg-white rounded-xl shadow-2xl border border-slate-200 w-full max-w-sm overflow-hidden relative"
+                className="bg-white rounded-xl shadow-2xl border border-slate-200 w-full max-w-sm my-auto relative"
               >
                 <button 
                     onClick={resetEnrollModal}
@@ -738,9 +815,10 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                                 className="space-y-3"
                             >
                                 <input type="hidden" name="course" value={selectedWorkshop?.title || ''} />
-                                <input type="hidden" name="price" value={selectedWorkshop?.price || ''} />
+                                <input type="hidden" name="price" value={calculatedFee ? `₹${calculatedFee}` : selectedWorkshop?.price || ''} />
                                 <input type="hidden" name="time_slot" value={enrollSlot} />
-                                <input type="hidden" name="number_of_students" value={enrollPeople} />
+                                <input type="hidden" name="number_of_students" value={enrollPeople || '1'} />
+                                <input type="hidden" name="area" value={enrollArea} />
                                 <div>
                                     <label className="block text-[10px] font-mono text-slate-400 uppercase tracking-widest mb-1.5 font-bold">Name</label>
                                     <div className="relative">
@@ -751,76 +829,283 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                                             required
                                             value={enrollName}
                                             onChange={(e) => setEnrollName(e.target.value)}
-                                            className="w-full bg-slate-50 border border-slate-200 pl-10 pr-4 py-2.5 text-sm text-slate-900 focus:border-indigo-600 focus:ring-0 outline-none rounded-lg transition-all"
+                                            className="w-full bg-slate-50 border border-slate-200 pl-10 pr-4 py-2.5 text-sm text-slate-500 font-normal focus:border-indigo-600 focus:ring-0 outline-none rounded-lg transition-all"
                                             placeholder="Enter name"
                                         />
                                     </div>
                                 </div>
-                                <div className="flex gap-3">
-                                    <div className="flex-[1.5]">
-                                        <label className="block text-[10px] font-mono text-slate-400 uppercase tracking-widest mb-1.5 font-bold">Phone Number</label>
+                                <div className="flex gap-2 items-start">
+                                    <div className="flex-1 min-w-0">
+                                        <div className="h-4 flex items-center mb-1.5">
+                                            <label className="text-[9.5px] font-mono text-slate-400 uppercase tracking-wider font-bold truncate leading-none select-none">Phone Number</label>
+                                        </div>
                                         <div className="relative">
-                                            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+                                            <Phone className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-300 pointer-events-none" />
                                             <input 
                                                 type="tel" 
                                                 name="phone"
                                                 required
                                                 value={enrollPhone}
                                                 onChange={(e) => setEnrollPhone(e.target.value)}
-                                                className="w-full bg-slate-50 border border-slate-200 pl-10 pr-4 py-2.5 text-sm text-slate-900 focus:border-indigo-600 focus:ring-0 outline-none rounded-lg transition-all"
-                                                placeholder="Contact number"
+                                                className="w-full bg-slate-50 border border-slate-200 pl-8 pr-2 py-2.5 text-xs sm:text-sm text-slate-500 font-normal focus:border-indigo-600 focus:ring-0 outline-none rounded-lg transition-all placeholder:text-slate-300 h-[42px] box-border"
+                                                placeholder="10-digit no."
                                             />
                                         </div>
                                     </div>
-                                    <div className="flex-1">
-                                        <label className="block text-[10px] font-mono text-slate-400 uppercase tracking-widest mb-1.5 font-bold whitespace-nowrap">No of Students</label>
+                                    <div className="w-[88px] flex-shrink-0">
+                                        <div className="h-4 flex items-center mb-1.5">
+                                            <label className="text-[9.5px] font-mono text-slate-400 uppercase tracking-wider font-bold truncate leading-none select-none">Students</label>
+                                        </div>
                                         <div className="relative">
-                                            <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 pointer-events-none" />
+                                            <Users className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-300 pointer-events-none" />
                                             <input 
-                                                type="number"
-                                                min="1"
-                                                value={enrollPeople}
-                                                onChange={(e) => setEnrollPeople(e.target.value)}
-                                                className={`w-full bg-slate-50 border border-slate-200 pl-10 pr-4 py-2.5 text-sm text-slate-900 focus:border-indigo-600 focus:ring-0 outline-none rounded-lg transition-all ${enrollPeople ? 'text-slate-900' : 'text-slate-400'}`}
+                                                 type="number"
+                                                 min="1"
+                                                 max="3"
+                                                 value={enrollPeople}
+                                                 onPointerDown={(e) => {
+                                                     const target = e.currentTarget;
+                                                     const rect = target.getBoundingClientRect();
+                                                     const isRightSide = e.clientX > rect.right - 28;
+                                                     const isTopHalf = e.clientY < rect.top + (rect.height / 2);
+                                                     if (isRightSide && isTopHalf) {
+                                                         const current = parseInt(enrollPeople, 10);
+                                                         if (!isNaN(current) && current >= 3) {
+                                                             target.setCustomValidity('Max 3 students');
+                                                             target.reportValidity();
+                                                             setTimeout(() => target.reportValidity(), 10);
+                                                         }
+                                                     }
+                                                 }}
+                                                 onKeyDown={(e) => {
+                                                     const input = e.currentTarget;
+                                                     if (e.key === 'ArrowUp' || e.key === 'Up') {
+                                                         e.preventDefault();
+                                                         const current = parseInt(enrollPeople, 10);
+                                                         if (!isNaN(current) && current >= 3) {
+                                                             input.setCustomValidity('Max 3 students');
+                                                             input.reportValidity();
+                                                             setTimeout(() => input.reportValidity(), 10);
+                                                         } else {
+                                                             const next = isNaN(current) ? 1 : Math.min(3, current + 1);
+                                                             setEnrollPeople(next.toString());
+                                                             input.setCustomValidity('');
+                                                         }
+                                                     } else if (e.key === 'ArrowDown' || e.key === 'Down') {
+                                                         e.preventDefault();
+                                                         const current = parseInt(enrollPeople, 10);
+                                                         const next = isNaN(current) ? 1 : Math.max(1, current - 1);
+                                                         setEnrollPeople(next.toString());
+                                                         input.setCustomValidity('');
+                                                     } else if (['e', 'E', '+', '-', '.'].includes(e.key)) {
+                                                         e.preventDefault();
+                                                     } else if (/^[0-9]$/.test(e.key)) {
+                                                         const start = input.selectionStart ?? 0;
+                                                         const end = input.selectionEnd ?? 0;
+                                                         const currentVal = input.value;
+                                                         const nextValStr = currentVal.slice(0, start) + e.key + currentVal.slice(end);
+                                                         const nextNum = parseInt(nextValStr, 10);
+                                                         if (!isNaN(nextNum) && nextNum > 3) {
+                                                             e.preventDefault();
+                                                             input.setCustomValidity('Max 3 students');
+                                                             input.reportValidity();
+                                                             setTimeout(() => input.reportValidity(), 10);
+                                                         } else if (nextNum < 1) {
+                                                             e.preventDefault();
+                                                         } else {
+                                                             input.setCustomValidity('');
+                                                         }
+                                                     }
+                                                 }}
+                                                 onInvalid={(e) => {
+                                                     const target = e.currentTarget;
+                                                     if (target.validity.rangeOverflow || (target.value && parseInt(target.value, 10) > 3)) {
+                                                         target.setCustomValidity('Max 3 students');
+                                                     } else {
+                                                         target.setCustomValidity('');
+                                                     }
+                                                 }}
+                                                 onInput={(e) => {
+                                                     const target = e.currentTarget;
+                                                     const val = target.value;
+                                                     if (val !== '') {
+                                                         const num = parseInt(val, 10);
+                                                         if (num > 3 || target.validity.rangeOverflow) {
+                                                             target.setCustomValidity('Max 3 students');
+                                                             target.reportValidity();
+                                                             setTimeout(() => target.reportValidity(), 10);
+                                                             return;
+                                                         }
+                                                     }
+                                                     target.setCustomValidity('');
+                                                 }}
+                                                 onChange={(e) => {
+                                                     const val = e.target.value;
+                                                     if (val === '') {
+                                                         e.target.setCustomValidity('');
+                                                         setEnrollPeople('');
+                                                     } else {
+                                                         const num = parseInt(val, 10);
+                                                         if (num > 3 || e.target.validity.rangeOverflow) {
+                                                             e.target.setCustomValidity('Max 3 students');
+                                                             e.target.reportValidity();
+                                                             setTimeout(() => e.target.reportValidity(), 10);
+                                                             setEnrollPeople('3');
+                                                         } else if (num < 1) {
+                                                             e.target.setCustomValidity('');
+                                                             setEnrollPeople('');
+                                                         } else {
+                                                             e.target.setCustomValidity('');
+                                                             setEnrollPeople(val);
+                                                         }
+                                                     }
+                                                 }}
+                                                placeholder=""
+                                                className={`w-full bg-slate-50 border border-slate-200 pl-7 pr-1.5 py-2.5 text-xs sm:text-sm font-normal focus:border-indigo-600 focus:ring-0 outline-none rounded-lg transition-all h-[42px] box-border ${enrollPeople ? 'text-slate-500' : 'text-slate-400'}`}
                                             />
                                         </div>
                                     </div>
                                 </div>
 
-                                <div>
-                                    <label className="block text-[10px] font-mono text-slate-400 uppercase tracking-widest mb-2 font-bold">Select Time Slot</label>
-                                    <div className="space-y-3">
-                                        {enrollmentDays.map((day) => (
-                                            <div key={day.date}>
-                                                <p className="text-[9px] text-slate-500 font-bold mb-1.5 tracking-wider">
-                                                    {day.display.day}
-                                                    <span className="text-[0.7em] lowercase align-top">{day.display.suffix}</span>
-                                                    {' '}{day.display.rest}
-                                                </p>
-                                                <div className="grid grid-cols-4 gap-1.5">
-                                                    {day.times.map((time) => {
-                                                        const slotValue = `${day.date} - ${time}`;
-                                                        const isSelected = enrollSlot === slotValue;
-                                                        return (
-                                                            <button
-                                                                key={time}
-                                                                type="button"
-                                                                onClick={() => setEnrollSlot(slotValue)}
-                                                                className={`py-1.5 text-[9px] font-bold rounded-md transition-all border ${
-                                                                    isSelected 
-                                                                        ? 'bg-indigo-600 border-indigo-600 text-white shadow-md' 
-                                                                        : 'bg-white border-slate-200 text-slate-600 hover:border-indigo-300'
-                                                                }`}
-                                                            >
-                                                                {time}
-                                                            </button>
-                                                        );
-                                                    })}
+                                <div ref={areaDropdownRef} className="relative">
+                                    <div className="mb-1.5">
+                                        <label className="block text-[10px] font-mono text-slate-400 uppercase tracking-widest font-bold leading-none select-none">Select Area</label>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsAreaDropdownOpen((prev) => !prev)}
+                                        className={`w-full bg-slate-50 border border-slate-200 pl-10 pr-8 py-2.5 text-sm text-left focus:border-indigo-600 focus:ring-0 outline-none rounded-lg transition-all relative cursor-pointer ${
+                                            enrollArea ? 'text-slate-500 font-normal' : 'text-slate-400'
+                                        }`}
+                                    >
+                                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 pointer-events-none" />
+                                        <span className="block truncate">{enrollArea || 'Select Area'}</span>
+                                        <ChevronDown className={`absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${isAreaDropdownOpen ? 'rotate-180 text-indigo-600' : ''}`} />
+                                    </button>
+
+                                    {isAreaDropdownOpen && (
+                                        <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-lg shadow-2xl z-50 h-[190px] overflow-y-auto custom-scrollbar py-1 divide-y divide-slate-50">
+                                            {AREAS.map((area) => (
+                                                 <button
+                                                    key={area}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        if (enrollArea !== area) {
+                                                            setEnrollSlot('');
+                                                        }
+                                                        setEnrollArea(area);
+                                                        setIsAreaDropdownOpen(false);
+                                                    }}
+                                                    className={`w-full px-4 h-[38px] flex-shrink-0 text-xs text-left flex items-center justify-between transition-colors ${
+                                                        enrollArea === area 
+                                                            ? 'bg-indigo-50 text-indigo-700 font-medium' 
+                                                            : 'text-slate-600 hover:bg-slate-50 hover:text-indigo-600 font-normal'
+                                                    }`}
+                                                >
+                                                    <span>{area}</span>
+                                                    {enrollArea === area && (
+                                                        <CheckCircle2 className="w-3.5 h-3.5 text-indigo-600" />
+                                                    )}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {!enrollArea ? (
+                                    <p className="text-[11px] text-slate-500 italic bg-slate-50 border border-dashed border-slate-200 rounded-lg py-2.5 px-3 text-center">
+                                        Time slots will appear once you select the area
+                                    </p>
+                                ) : (
+                                    <div>
+                                        <div className="flex items-center gap-1 mb-2">
+                                            <label className="text-[10px] font-mono text-slate-400 uppercase tracking-widest font-bold leading-none select-none">Select Time Slot</label>
+                                            <div className="relative group inline-flex items-center -translate-y-[1px]">
+                                                <button
+                                                    type="button"
+                                                    className="inline-flex items-center justify-center p-0 leading-none text-slate-500 hover:text-indigo-600 transition-colors focus:outline-none cursor-pointer"
+                                                    aria-label="Area Day Allotment Schedule"
+                                                >
+                                                    <svg className="w-2.5 h-2.5 block" viewBox="0 0 14 14" fill="none">
+                                                        <circle 
+                                                            cx="7" 
+                                                            cy="7" 
+                                                            r="6" 
+                                                            className="fill-slate-100 group-hover:fill-indigo-50 stroke-slate-300 group-hover:stroke-indigo-400 transition-colors" 
+                                                            strokeWidth="1.2" 
+                                                        />
+                                                        <text 
+                                                            x="6.85" 
+                                                            y="7.1" 
+                                                            textAnchor="middle" 
+                                                            dominantBaseline="central" 
+                                                            fill="currentColor" 
+                                                            fontFamily="Georgia, serif" 
+                                                            fontStyle="italic" 
+                                                            fontWeight="bold" 
+                                                            fontSize="8.5"
+                                                        >
+                                                            i
+                                                        </text>
+                                                    </svg>
+                                                </button>
+
+                                                {/* Sleek Classy Tooltip */}
+                                                <div className="absolute left-0 bottom-full mb-2 hidden group-hover:block group-focus-within:block z-50 w-64 p-3 bg-slate-950/95 backdrop-blur-md text-white rounded-xl shadow-2xl border border-slate-800 text-xs pointer-events-none transition-all">
+                                                    <div className="text-[9.5px] font-mono uppercase tracking-wider text-indigo-400 font-bold mb-2 pb-1.5 border-b border-slate-800/80">
+                                                        <span>Day Wise Area List</span>
+                                                    </div>
+                                                    <div className="space-y-2 text-[11px] leading-relaxed">
+                                                        <div>
+                                                            <span className="font-semibold text-sky-400">Fridays: </span>
+                                                            <span className="text-slate-300 text-[10.5px]">Ambawadi, Naranpura, Navrangpura</span>
+                                                        </div>
+                                                        <div>
+                                                            <span className="font-semibold text-amber-400">Saturdays: </span>
+                                                            <span className="text-slate-300 text-[10.5px]">Vastrapur, Satellite, Jodhpur, Bodakdev, Prahladnagar, Anandnagar</span>
+                                                        </div>
+                                                        <div>
+                                                            <span className="font-semibold text-emerald-400">Sundays: </span>
+                                                            <span className="text-slate-300 text-[10.5px]">Thaltej, Shilaj, Shela, Bopal, South Bopal</span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="absolute -bottom-1 left-2 w-2.5 h-2.5 bg-slate-950 border-r border-b border-slate-800 rotate-45"></div>
                                                 </div>
                                             </div>
-                                        ))}
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-2.5">
+                                            {enrollmentDays.map((day) => (
+                                                <div key={day.date} className="bg-slate-50/80 p-2.5 rounded-lg border border-slate-200/80 flex flex-col justify-between">
+                                                    <p className="text-[9.5px] text-slate-500 font-medium mb-1.5 tracking-tight truncate" title={day.date}>
+                                                        {day.display.day}
+                                                        <span className="text-[0.7em] lowercase align-top">{day.display.suffix}</span>
+                                                        {' '}{day.display.rest}
+                                                    </p>
+                                                    <div className="grid grid-cols-4 gap-1">
+                                                        {day.times.map((time) => {
+                                                            const slotValue = `${day.date} - ${time}`;
+                                                            const isSelected = enrollSlot === slotValue;
+                                                            return (
+                                                                <button
+                                                                    key={time}
+                                                                    type="button"
+                                                                    onClick={() => setEnrollSlot(prev => prev === slotValue ? '' : slotValue)}
+                                                                    className={`py-1.5 px-0.5 text-[8.5px] font-medium rounded transition-all border text-center whitespace-nowrap ${
+                                                                        isSelected 
+                                                                            ? 'bg-indigo-600 border-indigo-600 text-white shadow-2xs' 
+                                                                            : 'bg-white border-slate-200/90 text-slate-500 hover:text-slate-800 hover:border-indigo-200'
+                                                                    }`}
+                                                                >
+                                                                    {time}
+                                                                </button>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
-                                </div>
+                                )}
 
                                 {SHOW_HOME_CONFIRMATION && (
                                     <div className="flex items-start space-x-2 pt-1">
@@ -885,7 +1170,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
         )}
       </AnimatePresence>
 
-      {/* Experiments List Modal */}
+      {/* Project List Modal */}
       <AnimatePresence>
         {viewingExperiments && (
           <motion.div 
@@ -906,7 +1191,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
               <div>
                 <h3 className="text-xl font-display font-bold text-slate-900">{viewingExperiments.title}</h3>
                 <span className="text-xs text-indigo-600 font-mono uppercase tracking-wider font-semibold">
-                    Experiment List {viewMode !== 'topic' && `• Class ${viewingExperiments.gradeLevel}`}
+                    Project List {viewMode !== 'topic' && `• Class ${viewingExperiments.gradeLevel}`}
                 </span>
               </div>
               <button 
@@ -933,7 +1218,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
 
               <div className="md:w-44 flex flex-col justify-center md:border-l md:border-slate-200 md:pl-6 pt-4 md:pt-0 border-t md:border-t-0 border-slate-100">
                 <p className="text-[10px] text-slate-500 font-medium mb-3 leading-relaxed">
-                  Experiment list will be shared on this number
+                  Project list will be shared on this number
                 </p>
                 <div className="flex flex-row gap-2 md:flex-col md:space-y-3">
                   <div className="relative group flex-1">
@@ -1017,7 +1302,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                 <CheckCircle2 className="w-6 h-6 text-green-600" />
               </div>
               <p className="text-[13px] font-bold text-slate-900 leading-relaxed tracking-tight">
-                Thanks! We'll share the experiment list with you shortly on WhatsApp.
+                Thanks! We'll share the project list with you shortly on WhatsApp.
               </p>
             </div>
           </motion.div>

@@ -53,7 +53,7 @@ const Hero: React.FC<HeroProps> = ({ onCtaClick, onSearchNavigate }) => {
         <div className="flex flex-col items-center text-center md:items-start md:text-left space-y-3 md:space-y-8 animate-slide-up order-1">
               <div className="flex items-center justify-center md:justify-start space-x-4">
                  <div className="h-px w-12 bg-indigo-600"></div>
-                 <span className="text-indigo-600 font-mono text-[10px] md:text-xs tracking-widest uppercase font-bold">in ahmedabad</span>
+                 <span className="text-indigo-600 font-mono text-[10px] md:text-xs tracking-widest uppercase font-bold">in ahmedabad, gj, india</span>
               </div>
               
               <h1 className="text-3xl md:text-7xl font-display font-bold text-slate-900 tracking-tight leading-[1.05]">
@@ -64,7 +64,7 @@ const Hero: React.FC<HeroProps> = ({ onCtaClick, onSearchNavigate }) => {
 
               <div className="flex flex-col items-center md:items-start gap-4 pt-1 md:pt-4">
                   <button onClick={onCtaClick} className="bg-slate-900 text-white px-5 py-2.5 md:px-8 md:py-4 rounded-lg text-[10px] md:text-xs font-bold uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-lg hover:shadow-xl flex items-center text-center">
-                    Experiment List
+                    Pick a Topic
                     <ArrowRight className="ml-2 w-4 h-4 flex-shrink-0" />
                   </button>
                   
@@ -105,7 +105,7 @@ const Hero: React.FC<HeroProps> = ({ onCtaClick, onSearchNavigate }) => {
                                 onKeyDown={handleKeyDown}
                                 onFocus={() => setIsFocused(true)}
                                 onBlur={() => setTimeout(() => setIsFocused(false), 200)}
-                                placeholder="SEARCH TOPICS (e.g. Optics, DNA)..."
+                                placeholder="SEARCH TOPICS (e.g. Optics, Electromagnetism)..."
                                 className="block w-full pl-4 pr-12 py-3 bg-transparent border-0 text-slate-900 placeholder-slate-400 focus:ring-0 text-xs font-mono font-bold tracking-wide"
                             />
                             <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
