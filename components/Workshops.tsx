@@ -432,6 +432,11 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
       if (isSubmittingEnroll) return;
       setIsSubmittingEnroll(true);
 
+      const isMobileDevice = typeof window !== 'undefined' && (
+          /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+          window.innerWidth < 768
+      );
+
       const payload = {
           name: enrollName,
           phone: enrollPhone,
@@ -439,7 +444,8 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
           price: calculatedFee ? `₹${calculatedFee}` : selectedWorkshop?.price || '',
           number_of_students: enrollPeople || '1',
           area: enrollArea,
-          time_slot: enrollSlot
+          time_slot: enrollSlot,
+          device: isMobileDevice ? "Mobile" : "Desktop"
       };
       console.log("Submitting Enrollment Payload to Google Apps Script:", JSON.stringify(payload));
 
