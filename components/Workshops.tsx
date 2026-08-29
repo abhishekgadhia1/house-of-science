@@ -896,12 +896,12 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                                             />
                                         </div>
                                     </div>
-                                    <div className="w-[68px] flex-shrink-0">
+                                    <div className="w-[58px] flex-shrink-0">
                                         <div className="h-4 flex items-center mb-1.5">
                                             <label className="text-[9.5px] font-mono text-slate-400 uppercase tracking-wider font-bold truncate leading-none select-none">Students</label>
                                         </div>
                                         <div className="relative">
-                                            <Users className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-300 pointer-events-none" />
+                                            <Users className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-300 pointer-events-none" />
                                             <input 
                                                 type="number"
                                                 min="1"
@@ -968,11 +968,11 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                                                     }
                                                 }}
                                                 placeholder=""
-                                                className={`w-full bg-slate-50 border border-slate-200 pl-7 pr-1.5 py-2.5 text-xs sm:text-sm font-normal focus:border-indigo-600 focus:ring-0 outline-none rounded-lg transition-all h-[42px] box-border ${enrollPeople ? "text-slate-500" : "text-slate-400"}`}
+                                                className={`w-full bg-slate-50 border border-slate-200 pl-6 pr-1 py-2.5 text-xs sm:text-sm font-normal focus:border-indigo-600 focus:ring-0 outline-none rounded-lg transition-all h-[42px] box-border ${enrollPeople ? "text-slate-500" : "text-slate-400"}`}
                                             />
                                         </div>
                                     </div>
-                                    <div className="w-[74px] flex-shrink-0">
+                                    <div className="w-[64px] flex-shrink-0">
                                         <div className="h-4 flex items-center gap-1 mb-1.5">
                                             <label className="text-[9.5px] font-mono text-slate-400 uppercase tracking-wider font-bold truncate leading-none select-none">Fees</label>
                                             <div className="relative group inline-flex items-center -translate-y-[1px]">
@@ -1029,7 +1029,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                                             </div>
                                         </div>
                                         <div className="relative">
-                                            <div className="w-full bg-slate-50 border border-slate-200 px-2 py-2.5 text-xs sm:text-sm font-normal text-slate-500 rounded-lg h-[42px] box-border flex items-center justify-center select-none">
+                                            <div className="w-full bg-slate-50 border border-slate-200 px-1.5 py-2.5 text-xs sm:text-sm font-normal text-slate-500 rounded-lg h-[42px] box-border flex items-center justify-center select-none">
                                                 {calculatedFee ? `₹${calculatedFee}` : (selectedWorkshop?.price ? `₹${selectedWorkshop.price}` : '₹300')}
                                             </div>
                                         </div>
