@@ -112,6 +112,39 @@
       .text-glow {
         text-shadow: 0 0 30px rgba(79, 70, 229, 0.2);
       }
+      
+      input, select, textarea, button {
+        font-family: 'Inter', sans-serif !important;
+      }
+      
+      /* Retain consistent text color, font family, font size, and background when autofilling / selecting saved info */
+      input:-webkit-autofill,
+      input:-webkit-autofill:hover, 
+      input:-webkit-autofill:focus, 
+      input:-webkit-autofill:active {
+        -webkit-text-fill-color: #64748b !important;
+        -webkit-box-shadow: 0 0 0px 1000px #f8fafc inset !important;
+        box-shadow: 0 0 0px 1000px #f8fafc inset !important;
+        transition: background-color 5000s ease-in-out 0s;
+        font-family: 'Inter', sans-serif !important;
+        font-size: 14px !important;
+        font-style: normal !important;
+        font-weight: 400 !important;
+        line-height: 1.25rem !important;
+        letter-spacing: normal !important;
+      }
+      
+      input:autofill {
+        color: #64748b !important;
+        -webkit-text-fill-color: #64748b !important;
+        background-color: #f8fafc !important;
+        font-family: 'Inter', sans-serif !important;
+        font-size: 14px !important;
+        font-style: normal !important;
+        font-weight: 400 !important;
+        line-height: 1.25rem !important;
+        letter-spacing: normal !important;
+      }
     </style>
   </head>
   <body class="antialiased selection:bg-indigo-100 selection:text-indigo-900">

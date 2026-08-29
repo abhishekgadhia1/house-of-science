@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Workshop } from '../types';
 import { RAW_WORKSHOPS } from '../data/curriculum';
 import Footer from './Footer';
-import { FlaskConical, Atom, Dna, Cpu, Grid, Zap, Magnet, Gauge, Search, Wind, Waves, Sun, Sparkles, Radio, Telescope, Fingerprint, X, CheckCircle2, ChevronRight, LayoutGrid, GraduationCap, BookOpen, Bug, Calendar, Lock, ArrowRight, Phone, User, Sigma, Users, ChevronDown, MapPin, Info } from 'lucide-react';
+import { FlaskConical, Atom, Dna, Cpu, Grid, Zap, Magnet, Gauge, Search, Wind, Waves, Sun, Sparkles, Radio, Telescope, Fingerprint, X, CheckCircle2, ChevronRight, LayoutGrid, GraduationCap, BookOpen, Bug, Calendar, Lock, ArrowRight, ArrowLeft, Phone, User, Sigma, Users, ChevronDown, MapPin, Info, QrCode } from 'lucide-react';
 
 const getCategoryImage = (cat: string) => {
   switch(cat) {
@@ -85,6 +85,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
   // Enrollment State
   const [enrollingWorkshop, setEnrollingWorkshop] = useState<Workshop | null>(null);
   const [selectedWorkshop, setSelectedWorkshop] = useState<{ title: string, price: string } | null>(null);
+  const [showQrCode, setShowQrCode] = useState(false);
   const [enrollSuccess, setEnrollSuccess] = useState(false);
   const [enrollName, setEnrollName] = useState('');
   const [enrollPhone, setEnrollPhone] = useState('');
@@ -182,13 +183,13 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
 
   // Dynamic fee calculation with group discounts based on number of students:
   // - 1 student: Standard rate (₹basePrice)
-  // - 2 students: 20% off total
-  // - 3 students: 30% off total (max 3 allowed)
+  // - 2 students: 15% off total
+  // - 3 students: 25% off total (max 3 allowed)
   const basePrice = (selectedWorkshop && parseFloat(selectedWorkshop.price)) || 300;
   const parsedStudents = parseInt(enrollPeople, 10);
   const clampedStudents = parsedStudents > 3 ? 3 : parsedStudents > 0 ? parsedStudents : 1;
   const studentCount = clampedStudents;
-  const discountRate = studentCount === 2 ? 0.20 : studentCount === 3 ? 0.30 : 0;
+  const discountRate = studentCount === 2 ? 0.15 : studentCount === 3 ? 0.25 : 0;
   const calculatedFee = Math.round(studentCount * basePrice * (1 - discountRate));
   const perStudentFee = Math.round(calculatedFee / studentCount);
 
@@ -412,15 +413,19 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
       // Submit the form programmatically to the hidden iframe
       form.submit();
       
-      // Show success message in the UI after a small delay
-      setTimeout(() => {
-          setEnrollSuccess(true);
-      }, 100);
+      // Show QR code step in the enrollment modal
+      setShowQrCode(true);
+  };
+
+  const handleQrDone = () => {
+      setShowQrCode(false);
+      setEnrollSuccess(true);
   };
 
   const resetEnrollModal = () => {
       setEnrollingWorkshop(null);
       setSelectedWorkshop(null);
+      setShowQrCode(false);
       setEnrollSuccess(false);
       setEnrollName('');
       setEnrollPhone('');
@@ -789,6 +794,17 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                 transition={{ duration: 0.5, ease: "easeOut" }}
                 className="bg-white rounded-xl shadow-2xl border border-slate-200 w-full max-w-sm my-auto relative"
               >
+                {showQrCode && !enrollSuccess && (
+                    <button 
+                        type="button"
+                        onClick={() => setShowQrCode(false)}
+                        title="Back to enrolment form"
+                        className="absolute top-4 left-4 p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-full transition-all z-10 cursor-pointer"
+                    >
+                        <ArrowLeft className="w-4 h-4" />
+                    </button>
+                )}
+                
                 <button 
                     onClick={resetEnrollModal}
                     className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-full transition-all z-10"
@@ -797,7 +813,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                 </button>
                 
                 <div className="p-5">
-                    {!enrollSuccess ? (
+                    {!showQrCode && !enrollSuccess && (
                         <>
                             <div className="mb-4">
                                 <span className="text-indigo-600 font-mono text-[10px] tracking-widest uppercase font-bold">Enrolment Request</span>
@@ -812,6 +828,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                                 action="https://script.google.com/macros/s/AKfycbw-T-LGayP8mhq6LnP75LpFw12lM2lJkzDV-xnWZhubS9K5_YvzqbCXkVt5Q2KPFnhR/exec"
                                 target="hidden_enroll_iframe"
                                 onSubmit={handleEnrollSubmit} 
+                                autoComplete="off"
                                 className="space-y-3"
                             >
                                 <input type="hidden" name="course" value={selectedWorkshop?.title || ''} />
@@ -826,10 +843,13 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                                         <input 
                                             type="text" 
                                             name="name"
+                                            autoComplete="off"
+                                            autoCorrect="off"
+                                            spellCheck="false"
                                             required
                                             value={enrollName}
                                             onChange={(e) => setEnrollName(e.target.value)}
-                                            className="w-full bg-slate-50 border border-slate-200 pl-10 pr-4 py-2.5 text-sm text-slate-500 font-normal focus:border-indigo-600 focus:ring-0 outline-none rounded-lg transition-all"
+                                            className="w-full bg-slate-50 border border-slate-200 pl-10 pr-4 py-2.5 text-sm font-sans text-slate-500 font-normal focus:border-indigo-600 focus:ring-0 outline-none rounded-lg transition-all h-[42px] box-border"
                                             placeholder="Enter name"
                                         />
                                     </div>
@@ -840,14 +860,17 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                                             <label className="text-[9.5px] font-mono text-slate-400 uppercase tracking-wider font-bold truncate leading-none select-none">Phone Number</label>
                                         </div>
                                         <div className="relative">
-                                            <Phone className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-300 pointer-events-none" />
+                                            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 pointer-events-none" />
                                             <input 
                                                 type="tel" 
                                                 name="phone"
+                                                autoComplete="off"
+                                                autoCorrect="off"
+                                                spellCheck="false"
                                                 required
                                                 value={enrollPhone}
                                                 onChange={(e) => setEnrollPhone(e.target.value)}
-                                                className="w-full bg-slate-50 border border-slate-200 pl-8 pr-2 py-2.5 text-xs sm:text-sm text-slate-500 font-normal focus:border-indigo-600 focus:ring-0 outline-none rounded-lg transition-all placeholder:text-slate-300 h-[42px] box-border"
+                                                className="w-full bg-slate-50 border border-slate-200 pl-10 pr-4 py-2.5 text-sm font-sans text-slate-500 font-normal focus:border-indigo-600 focus:ring-0 outline-none rounded-lg transition-all h-[42px] box-border"
                                                 placeholder="10-digit no."
                                             />
                                         </div>
@@ -1131,12 +1154,58 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                                         type="submit" 
                                         className="w-full bg-slate-900 text-white font-bold text-xs uppercase tracking-widest py-3.5 rounded-lg hover:bg-indigo-600 transition-colors shadow-lg"
                                     >
-                                        Confirm Enrolment
+                                        Confirm and Proceed
                                     </button>
                                 </div>
                             </form>
                         </>
-                    ) : (
+                    )}
+
+                    {showQrCode && !enrollSuccess && (
+                        <div className="py-2 flex flex-col items-center text-center animate-fade-in">
+                            <div className="mb-3 text-center">
+                                <h3 className="text-xl font-mono font-bold text-indigo-600 tracking-wide uppercase">Scan to Complete</h3>
+                                <p className="text-xs text-slate-500 mt-1 max-w-[260px]">
+                                    Scan with any UPI app to pay and confirm
+                                </p>
+                            </div>
+
+                            {/* QR Code Container */}
+                            <div className="relative my-2 p-3 bg-white border border-slate-200 rounded-xl shadow-sm flex flex-col items-center">
+                                <div className="w-48 h-48 bg-white flex items-center justify-center p-1 border border-slate-100 rounded-lg overflow-hidden">
+                                    <img 
+                                        src="/payment-qr.jpg" 
+                                        alt="UPI QR Code" 
+                                        className="w-full h-full object-contain"
+                                        referrerPolicy="no-referrer"
+                                        onError={(e) => {
+                                            // Fallback if payment-qr.jpg is not found yet
+                                            (e.currentTarget as HTMLImageElement).src = '/payment-qr.svg';
+                                        }}
+                                    />
+                                </div>
+                                <div className="mt-2.5 flex items-center justify-center w-full px-1">
+                                    <span className="text-xs font-mono font-bold text-slate-900 tracking-tight">
+                                        {calculatedFee ? `₹${calculatedFee}` : (selectedWorkshop?.price || '₹300')}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <p className="text-[11px] text-slate-400 mt-1 mb-4 leading-tight">
+                                Click <span className="font-semibold text-slate-700">Done</span> after completion
+                            </p>
+
+                            <button 
+                                type="button" 
+                                onClick={handleQrDone}
+                                className="w-full bg-slate-900 hover:bg-indigo-600 text-white font-bold text-xs uppercase tracking-widest py-3.5 rounded-lg transition-colors shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                            >
+                                Done
+                            </button>
+                        </div>
+                    )}
+
+                    {enrollSuccess && (
                         <div className="py-12 flex flex-col items-center text-center">
                             <motion.div 
                                 initial={{ scale: 0 }}
