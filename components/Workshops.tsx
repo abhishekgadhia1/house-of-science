@@ -896,7 +896,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                                             />
                                         </div>
                                     </div>
-                                    <div className="w-[88px] flex-shrink-0">
+                                    <div className="w-[78px] flex-shrink-0">
                                         <div className="h-4 flex items-center mb-1.5">
                                             <label className="text-[9.5px] font-mono text-slate-400 uppercase tracking-wider font-bold truncate leading-none select-none">Students</label>
                                         </div>
@@ -972,11 +972,73 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                                             />
                                         </div>
                                     </div>
+                                    <div className="w-[84px] flex-shrink-0">
+                                        <div className="h-4 flex items-center gap-1 mb-1.5">
+                                            <label className="text-[9.5px] font-mono text-slate-400 uppercase tracking-wider font-bold truncate leading-none select-none">Fees</label>
+                                            <div className="relative group inline-flex items-center -translate-y-[1px]">
+                                                <button
+                                                    type="button"
+                                                    className="inline-flex items-center justify-center p-0 leading-none text-slate-500 hover:text-indigo-600 transition-colors focus:outline-none cursor-pointer"
+                                                    aria-label="Fee Details"
+                                                >
+                                                    <svg className="w-2.5 h-2.5 block" viewBox="0 0 14 14" fill="none">
+                                                        <circle 
+                                                            cx="7" 
+                                                            cy="7" 
+                                                            r="6" 
+                                                            className="fill-slate-100 group-hover:fill-indigo-50 stroke-slate-300 group-hover:stroke-indigo-400 transition-colors" 
+                                                            strokeWidth="1.2" 
+                                                        />
+                                                        <text 
+                                                            x="6.85" 
+                                                            y="7.1" 
+                                                            textAnchor="middle" 
+                                                            dominantBaseline="central" 
+                                                            fill="currentColor" 
+                                                            fontFamily="Georgia, serif" 
+                                                            fontStyle="italic" 
+                                                            fontWeight="bold" 
+                                                            fontSize="8.5"
+                                                        >
+                                                            i
+                                                        </text>
+                                                    </svg>
+                                                </button>
+
+                                                {/* Sleek Tooltip */}
+                                                <div className="absolute right-0 bottom-full mb-2 hidden group-hover:block group-focus-within:block z-50 w-52 p-3 bg-slate-950/95 backdrop-blur-md text-white rounded-xl shadow-2xl border border-slate-800 text-xs pointer-events-none transition-all">
+                                                    <div className="text-[9.5px] font-mono uppercase tracking-wider text-indigo-400 font-bold mb-1.5 pb-1 border-b border-slate-800/80">
+                                                        <span>Fees Calculation</span>
+                                                    </div>
+                                                    <div className="space-y-1.5 text-[10.5px] leading-relaxed">
+                                                        <div className="flex items-center justify-between text-slate-300">
+                                                            <span>1 Student:</span>
+                                                            <span className="font-mono font-medium text-emerald-400">₹{basePrice}</span>
+                                                        </div>
+                                                        <div className="flex items-center justify-between text-slate-300">
+                                                            <span>2 Students:</span>
+                                                            <span className="font-mono font-medium text-emerald-400">₹{Math.round(2 * basePrice * 0.85)} <span className="text-[9px] text-emerald-300/80">(15% off)</span></span>
+                                                        </div>
+                                                        <div className="flex items-center justify-between text-slate-300">
+                                                            <span>3 Students:</span>
+                                                            <span className="font-mono font-medium text-emerald-400">₹{Math.round(3 * basePrice * 0.75)} <span className="text-[9px] text-emerald-300/80">(25% off)</span></span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="absolute -bottom-1 right-2 w-2.5 h-2.5 bg-slate-950 border-r border-b border-slate-800 rotate-45"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="relative">
+                                            <div className="w-full bg-slate-50 border border-slate-200 px-2 py-2.5 text-xs sm:text-sm font-normal text-slate-500 rounded-lg h-[42px] box-border flex items-center justify-center select-none">
+                                                {calculatedFee ? `₹${calculatedFee}` : (selectedWorkshop?.price ? `₹${selectedWorkshop.price}` : '₹300')}
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div ref={areaDropdownRef} className="relative">
                                     <div className="mb-1.5">
-                                        <label className="block text-[10px] font-mono text-slate-400 uppercase tracking-widest font-bold leading-none select-none">Select Area</label>
+                                        <label className="block text-[10px] font-mono text-slate-400 uppercase tracking-widest font-bold leading-none select-none">Select Your Area</label>
                                     </div>
                                     <button
                                         type="button"
@@ -986,7 +1048,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                                         }`}
                                     >
                                         <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 pointer-events-none" />
-                                        <span className="block truncate">{enrollArea || 'Select Area'}</span>
+                                        <span className="block truncate">{enrollArea || 'Select Your Area'}</span>
                                         <ChevronDown className={`absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${isAreaDropdownOpen ? 'rotate-180 text-indigo-600' : ''}`} />
                                     </button>
 
