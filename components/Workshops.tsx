@@ -83,6 +83,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
   const [viewingExperiments, setViewingExperiments] = useState<Workshop | null>(null);
   
   // Enrollment State
+  const PENDING_ENROLLMENT_KEY = 'hos_pending_enrollment_state';
   const [enrollingWorkshop, setEnrollingWorkshop] = useState<Workshop | null>(null);
   const [selectedWorkshop, setSelectedWorkshop] = useState<{ title: string, price: string } | null>(null);
   const [showQrCode, setShowQrCode] = useState(false);
@@ -106,6 +107,30 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
   const [shareSuccess, setShareSuccess] = useState(false);
   const [showWhatsappPopup, setShowWhatsappPopup] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Restore pending payment / enrollment dialog state when returning from external UPI app
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem(PENDING_ENROLLMENT_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && Date.now() - (parsed.timestamp || 0) < 2 * 60 * 60 * 1000) {
+          if (parsed.enrollingWorkshop) setEnrollingWorkshop(parsed.enrollingWorkshop);
+          if (parsed.selectedWorkshop) setSelectedWorkshop(parsed.selectedWorkshop);
+          if (parsed.enrollName) setEnrollName(parsed.enrollName);
+          if (parsed.enrollPhone) setEnrollPhone(parsed.enrollPhone);
+          if (parsed.enrollArea) setEnrollArea(parsed.enrollArea);
+          if (parsed.enrollSlot) setEnrollSlot(parsed.enrollSlot);
+          if (parsed.enrollPeople) setEnrollPeople(parsed.enrollPeople);
+          if (parsed.showQrCode) setShowQrCode(true);
+        } else {
+          sessionStorage.removeItem(PENDING_ENROLLMENT_KEY);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to restore enrollment session:", err);
+    }
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -425,25 +450,63 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
       // Submit the form programmatically to the hidden iframe
       form.submit();
       
+      // Save full enrollment session before opening UPI app so returning user stays on the confirmation/Done step
+      try {
+          sessionStorage.setItem(PENDING_ENROLLMENT_KEY, JSON.stringify({
+              enrollingWorkshop,
+              selectedWorkshop,
+              showQrCode: true,
+              enrollName,
+              enrollPhone,
+              enrollArea,
+              enrollSlot,
+              enrollPeople,
+              calculatedFee,
+              timestamp: Date.now()
+          }));
+      } catch (err) {
+          console.error("Failed to save enrollment session:", err);
+      }
+
+      // Show QR code step in the enrollment modal immediately
+      setShowQrCode(true);
+
       const amount = calculatedFee || (selectedWorkshop ? parseFloat(selectedWorkshop.price) : 300);
       const upiUrl = `upi://pay?pa=abhishek.gadhia@oksbi&pn=Abhishek%20Gadhia&am=${amount}&cu=INR`;
 
-      try {
-          window.location.href = upiUrl;
-      } catch (err) {
-          console.error("Failed to open UPI link:", err);
-      }
-
-      // Show QR code step in the enrollment modal
-      setShowQrCode(true);
+      // Trigger UPI app via invisible link click to prevent mobile browser unloading or discarding page state
+      setTimeout(() => {
+          try {
+              const link = document.createElement('a');
+              link.href = upiUrl;
+              link.rel = 'noopener noreferrer';
+              link.style.display = 'none';
+              document.body.appendChild(link);
+              link.click();
+              setTimeout(() => {
+                  if (document.body.contains(link)) {
+                      document.body.removeChild(link);
+                  }
+              }, 1000);
+          } catch (err) {
+              console.error("Failed to open UPI link via anchor:", err);
+              window.location.href = upiUrl;
+          }
+      }, 100);
   };
 
   const handleQrDone = () => {
+      try {
+          sessionStorage.removeItem(PENDING_ENROLLMENT_KEY);
+      } catch (err) {}
       setShowQrCode(false);
       setEnrollSuccess(true);
   };
 
   const resetEnrollModal = () => {
+      try {
+          sessionStorage.removeItem(PENDING_ENROLLMENT_KEY);
+      } catch (err) {}
       setEnrollingWorkshop(null);
       setSelectedWorkshop(null);
       setShowQrCode(false);

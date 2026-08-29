@@ -9,7 +9,18 @@ import Footer from './components/Footer';
 import EnrollmentModal from './components/EnrollmentModal';
 
 const App: React.FC = () => {
-  const [currentSection, setCurrentSection] = useState<NavSection>(NavSection.HOME);
+  const [currentSection, setCurrentSection] = useState<NavSection>(() => {
+    try {
+      if (sessionStorage.getItem('hos_pending_enrollment_state')) {
+        return NavSection.WORKSHOPS;
+      }
+      const savedSection = sessionStorage.getItem('hos_active_section');
+      if (savedSection && Object.values(NavSection).includes(savedSection as NavSection)) {
+        return savedSection as NavSection;
+      }
+    } catch (e) {}
+    return NavSection.HOME;
+  });
   const [workshopFilters, setWorkshopFilters] = useState<{subject?: string, query?: string}>({});
   const [isEnrollModalOpen, setIsEnrollModalOpen] = useState(false);
 
@@ -17,11 +28,17 @@ const App: React.FC = () => {
     // Clear filters when standard navigation occurs to ensure fresh state (search text becomes null and void)
     setWorkshopFilters({});
     setCurrentSection(section);
+    try {
+      sessionStorage.setItem('hos_active_section', section);
+    } catch (e) {}
   };
 
   const handleWorkshopNavigate = (subject?: string, query?: string) => {
     setWorkshopFilters({ subject, query });
     setCurrentSection(NavSection.WORKSHOPS);
+    try {
+      sessionStorage.setItem('hos_active_section', NavSection.WORKSHOPS);
+    } catch (e) {}
   };
 
   const renderContent = () => {
