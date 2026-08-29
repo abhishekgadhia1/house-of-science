@@ -84,8 +84,12 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
   
   // Enrollment State
   const PENDING_ENROLLMENT_KEY = 'hos_pending_enrollment_state';
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw-T-LGayP8mhq6LnP75LpFw12lM2lJkzDV-xnWZhubS9K5_YvzqbCXkVt5Q2KPFnhR/exec";
   const [enrollingWorkshop, setEnrollingWorkshop] = useState<Workshop | null>(null);
   const [selectedWorkshop, setSelectedWorkshop] = useState<{ title: string, price: string } | null>(null);
+  const [enrolledRowNumber, setEnrolledRowNumber] = useState<number | string | null>(null);
+  const [isSubmittingEnroll, setIsSubmittingEnroll] = useState(false);
+  const [isMarkingPaid, setIsMarkingPaid] = useState(false);
   const [showQrCode, setShowQrCode] = useState(false);
   const [enrollSuccess, setEnrollSuccess] = useState(false);
   const [enrollName, setEnrollName] = useState('');
@@ -122,6 +126,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
           if (parsed.enrollArea) setEnrollArea(parsed.enrollArea);
           if (parsed.enrollSlot) setEnrollSlot(parsed.enrollSlot);
           if (parsed.enrollPeople) setEnrollPeople(parsed.enrollPeople);
+          if (parsed.enrolledRowNumber !== undefined && parsed.enrolledRowNumber !== null) setEnrolledRowNumber(parsed.enrolledRowNumber);
           if (parsed.showQrCode) setShowQrCode(true);
         } else {
           sessionStorage.removeItem(PENDING_ENROLLMENT_KEY);
@@ -386,51 +391,47 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
       return `Class ${selectedGrade} ${selectedSubject}`;
   };
 
-  const handleEnrollSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleEnrollSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+
       // Validation
       if (!enrollName.trim()) {
-          e.preventDefault();
           alert("Please enter name");
           return;
       }
       if (enrollPhone.length !== 10 || !/^\d+$/.test(enrollPhone)) {
-          e.preventDefault();
           alert("Phone number must be exactly 10 digits");
           return;
       }
       if (!enrollPeople) {
-          e.preventDefault();
           alert("Please enter the number of students");
           return;
       }
       if (parseInt(enrollPeople, 10) > 3) {
-          e.preventDefault();
           triggerMaxStudentAlert();
           return;
       }
       if (!enrollArea) {
-          e.preventDefault();
           alert("Please select an area");
           return;
       }
       if (!enrollSlot) {
-          e.preventDefault();
           alert("Please select a time slot");
           return;
       }
       if (SHOW_HOME_CONFIRMATION && !enrollConfirmed) {
-          e.preventDefault();
           alert("Please confirm that the session will be conducted at the student's home");
           return;
       }
 
       if (!selectedWorkshop) {
-          e.preventDefault();
           alert("Error: No workshop selected.");
           return;
       }
 
-      // Log the payload to confirm fields are included
+      if (isSubmittingEnroll) return;
+      setIsSubmittingEnroll(true);
+
       const payload = {
           name: enrollName,
           phone: enrollPhone,
@@ -440,17 +441,48 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
           area: enrollArea,
           time_slot: enrollSlot
       };
-      console.log("Submitting Enrollment Payload:", JSON.stringify(payload));
+      console.log("Submitting Enrollment Payload to Google Apps Script:", JSON.stringify(payload));
 
-      // If valid, prevent default, and submit programmatically
-      // to ensure the browser has time to initiate the request before unmounting.
-      e.preventDefault();
+      let rowNumber: number | string | null = null;
+
+      try {
+          // 1. Submit complete enrolment details to Google Apps Script Web App (creates row with Paid = "No")
+          const response = await fetch(APPS_SCRIPT_URL, {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'text/plain;charset=utf-8',
+              },
+              body: JSON.stringify(payload),
+          });
+
+          try {
+              const text = await response.text();
+              try {
+                  const data = JSON.parse(text);
+                  if (data && typeof data === 'object') {
+                      rowNumber = data.row ?? data.rowNumber ?? data.rowIndex ?? data.id ?? data.result?.row ?? data.data?.row ?? null;
+                  } else if (typeof data === 'number' || (typeof data === 'string' && !isNaN(Number(data)))) {
+                      rowNumber = data;
+                  }
+              } catch {
+                  const trimmed = text.trim();
+                  if (trimmed && !isNaN(Number(trimmed))) {
+                      rowNumber = Number(trimmed);
+                  }
+              }
+          } catch (parseErr) {
+              console.warn("Could not read Apps Script response body:", parseErr);
+          }
+      } catch (err) {
+          console.error("Error submitting enrollment to Google Apps Script:", err);
+      } finally {
+          setIsSubmittingEnroll(false);
+      }
+
+      // Store returned row number in frontend state
+      setEnrolledRowNumber(rowNumber);
       
-      const form = e.currentTarget;
-      // Submit the form programmatically to the hidden iframe
-      form.submit();
-      
-      // Save full enrollment session before opening UPI app so returning user stays on the confirmation/Done step
+      // Save full enrollment session with row number before opening UPI app
       try {
           sessionStorage.setItem(PENDING_ENROLLMENT_KEY, JSON.stringify({
               enrollingWorkshop,
@@ -462,15 +494,17 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
               enrollSlot,
               enrollPeople,
               calculatedFee,
+              enrolledRowNumber: rowNumber,
               timestamp: Date.now()
           }));
       } catch (err) {
           console.error("Failed to save enrollment session:", err);
       }
 
-      // Show QR code step in the enrollment modal immediately
+      // Show QR code step in the enrollment modal
       setShowQrCode(true);
 
+      // Open UPI payment app dynamically with actual amount
       const amount = calculatedFee || (selectedWorkshop ? parseFloat(selectedWorkshop.price) : 300);
       const upiUrl = `upi://pay?pa=abhishek.gadhia@oksbi&pn=Abhishek%20Gadhia&am=${amount}&cu=INR`;
 
@@ -495,10 +529,47 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
       }, 100);
   };
 
-  const handleQrDone = () => {
+  const handleQrDone = async () => {
+      if (isMarkingPaid) return;
+      setIsMarkingPaid(true);
+
+      // Retrieve row number from state or saved session
+      let rowToMark = enrolledRowNumber;
+      if (!rowToMark) {
+          try {
+              const saved = sessionStorage.getItem(PENDING_ENROLLMENT_KEY);
+              if (saved) {
+                  const parsed = JSON.parse(saved);
+                  if (parsed?.enrolledRowNumber) {
+                      rowToMark = parsed.enrolledRowNumber;
+                  }
+              }
+          } catch (e) {}
+      }
+
+      // If we have the row number, update Paid from "No" to "Yes" via markPaid action (no new row created)
+      if (rowToMark) {
+          try {
+              await fetch(APPS_SCRIPT_URL, {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'text/plain;charset=utf-8',
+                  },
+                  body: JSON.stringify({
+                      action: "markPaid",
+                      row: rowToMark
+                  }),
+              });
+          } catch (err) {
+              console.error("Error marking enrollment as paid:", err);
+          }
+      }
+
       try {
           sessionStorage.removeItem(PENDING_ENROLLMENT_KEY);
       } catch (err) {}
+
+      setIsMarkingPaid(false);
       setShowQrCode(false);
       setEnrollSuccess(true);
   };
@@ -511,6 +582,9 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
       setSelectedWorkshop(null);
       setShowQrCode(false);
       setEnrollSuccess(false);
+      setEnrolledRowNumber(null);
+      setIsSubmittingEnroll(false);
+      setIsMarkingPaid(false);
       setEnrollName('');
       setEnrollPhone('');
       setEnrollArea('');
@@ -908,9 +982,6 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                             </div>
 
                             <form 
-                                method="POST" 
-                                action="https://script.google.com/macros/s/AKfycbw-T-LGayP8mhq6LnP75LpFw12lM2lJkzDV-xnWZhubS9K5_YvzqbCXkVt5Q2KPFnhR/exec"
-                                target="hidden_enroll_iframe"
                                 onSubmit={handleEnrollSubmit} 
                                 autoComplete="off"
                                 className="space-y-3"
@@ -1261,9 +1332,10 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                                 <div className="pt-2">
                                     <button 
                                         type="submit" 
-                                        className="w-full bg-slate-900 text-white font-bold text-xs uppercase tracking-widest py-3.5 rounded-lg hover:bg-indigo-600 transition-colors shadow-lg"
+                                        disabled={isSubmittingEnroll}
+                                        className="w-full bg-slate-900 text-white font-bold text-xs uppercase tracking-widest py-3.5 rounded-lg hover:bg-indigo-600 transition-colors shadow-lg disabled:opacity-75 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                     >
-                                        CONFIRM AND PAY WITH UPI
+                                        {isSubmittingEnroll ? 'PROCESSING...' : 'CONFIRM AND PAY WITH UPI'}
                                     </button>
                                 </div>
                             </form>
@@ -1307,9 +1379,10 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                             <button 
                                 type="button" 
                                 onClick={handleQrDone}
-                                className="w-full bg-slate-900 hover:bg-indigo-600 text-white font-bold text-xs uppercase tracking-widest py-3.5 rounded-lg transition-colors shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                                disabled={isMarkingPaid}
+                                className="w-full bg-slate-900 hover:bg-indigo-600 text-white font-bold text-xs uppercase tracking-widest py-3.5 rounded-lg transition-colors shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed"
                             >
-                                Done
+                                {isMarkingPaid ? 'CONFIRMING...' : 'Done'}
                             </button>
                         </div>
                     )}
