@@ -106,7 +106,7 @@ const Hero: React.FC<HeroProps> = ({ onCtaClick, onSearchNavigate }) => {
                                 onFocus={() => setIsFocused(true)}
                                 onBlur={() => setTimeout(() => setIsFocused(false), 200)}
                                 placeholder="SEARCH TOPICS (e.g. Optics, Electromagnetism)..."
-                                className="block w-full pl-4 pr-12 py-3 bg-transparent border-0 text-slate-900 placeholder-slate-400 focus:ring-0 text-xs font-mono font-bold tracking-wide"
+                                className="block w-full pl-4 pr-12 py-3 bg-transparent border-0 text-slate-900 placeholder-slate-400 focus:ring-0 text-xs font-mono font-semibold tracking-wide"
                             />
                             <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
                                 <kbd className="hidden sm:inline-block px-1.5 py-0.5 bg-slate-100 text-[9px] font-bold text-slate-400 rounded border border-slate-200 font-mono">

@@ -94,6 +94,13 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
   const areaDropdownRef = useRef<HTMLDivElement>(null);
   const [enrollSlot, setEnrollSlot] = useState('');
   const [enrollPeople, setEnrollPeople] = useState('1');
+  const triggerMaxStudentAlert = (inputElement?: HTMLInputElement | null) => {
+    if (inputElement) {
+      inputElement.setCustomValidity('max 3 students');
+      inputElement.reportValidity();
+      setTimeout(() => inputElement.setCustomValidity(''), 3000);
+    }
+  };
   const [enrollConfirmed, setEnrollConfirmed] = useState(!SHOW_HOME_CONFIRMATION);
   const [sharePhone, setSharePhone] = useState('');
   const [shareSuccess, setShareSuccess] = useState(false);
@@ -371,6 +378,11 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
           alert("Please enter the number of students");
           return;
       }
+      if (parseInt(enrollPeople, 10) > 3) {
+          e.preventDefault();
+          triggerMaxStudentAlert();
+          return;
+      }
       if (!enrollArea) {
           e.preventDefault();
           alert("Please select an area");
@@ -413,6 +425,15 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
       // Submit the form programmatically to the hidden iframe
       form.submit();
       
+      const amount = calculatedFee || (selectedWorkshop ? parseFloat(selectedWorkshop.price) : 300);
+      const upiUrl = `upi://pay?pa=abhishek.gadhia@oksbi&pn=Abhishek%20Gadhia&am=${amount}&cu=INR`;
+
+      try {
+          window.location.href = upiUrl;
+      } catch (err) {
+          console.error("Failed to open UPI link:", err);
+      }
+
       // Show QR code step in the enrollment modal
       setShowQrCode(true);
   };
@@ -882,109 +903,72 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                                         <div className="relative">
                                             <Users className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-300 pointer-events-none" />
                                             <input 
-                                                 type="number"
-                                                 min="1"
-                                                 max="3"
-                                                 value={enrollPeople}
-                                                 onPointerDown={(e) => {
-                                                     const target = e.currentTarget;
-                                                     const rect = target.getBoundingClientRect();
-                                                     const isRightSide = e.clientX > rect.right - 28;
-                                                     const isTopHalf = e.clientY < rect.top + (rect.height / 2);
-                                                     if (isRightSide && isTopHalf) {
-                                                         const current = parseInt(enrollPeople, 10);
-                                                         if (!isNaN(current) && current >= 3) {
-                                                             target.setCustomValidity('Max 3 students');
-                                                             target.reportValidity();
-                                                             setTimeout(() => target.reportValidity(), 10);
-                                                         }
-                                                     }
-                                                 }}
-                                                 onKeyDown={(e) => {
-                                                     const input = e.currentTarget;
-                                                     if (e.key === 'ArrowUp' || e.key === 'Up') {
-                                                         e.preventDefault();
-                                                         const current = parseInt(enrollPeople, 10);
-                                                         if (!isNaN(current) && current >= 3) {
-                                                             input.setCustomValidity('Max 3 students');
-                                                             input.reportValidity();
-                                                             setTimeout(() => input.reportValidity(), 10);
-                                                         } else {
-                                                             const next = isNaN(current) ? 1 : Math.min(3, current + 1);
-                                                             setEnrollPeople(next.toString());
-                                                             input.setCustomValidity('');
-                                                         }
-                                                     } else if (e.key === 'ArrowDown' || e.key === 'Down') {
-                                                         e.preventDefault();
-                                                         const current = parseInt(enrollPeople, 10);
-                                                         const next = isNaN(current) ? 1 : Math.max(1, current - 1);
-                                                         setEnrollPeople(next.toString());
-                                                         input.setCustomValidity('');
-                                                     } else if (['e', 'E', '+', '-', '.'].includes(e.key)) {
-                                                         e.preventDefault();
-                                                     } else if (/^[0-9]$/.test(e.key)) {
-                                                         const start = input.selectionStart ?? 0;
-                                                         const end = input.selectionEnd ?? 0;
-                                                         const currentVal = input.value;
-                                                         const nextValStr = currentVal.slice(0, start) + e.key + currentVal.slice(end);
-                                                         const nextNum = parseInt(nextValStr, 10);
-                                                         if (!isNaN(nextNum) && nextNum > 3) {
-                                                             e.preventDefault();
-                                                             input.setCustomValidity('Max 3 students');
-                                                             input.reportValidity();
-                                                             setTimeout(() => input.reportValidity(), 10);
-                                                         } else if (nextNum < 1) {
-                                                             e.preventDefault();
-                                                         } else {
-                                                             input.setCustomValidity('');
-                                                         }
-                                                     }
-                                                 }}
-                                                 onInvalid={(e) => {
-                                                     const target = e.currentTarget;
-                                                     if (target.validity.rangeOverflow || (target.value && parseInt(target.value, 10) > 3)) {
-                                                         target.setCustomValidity('Max 3 students');
-                                                     } else {
-                                                         target.setCustomValidity('');
-                                                     }
-                                                 }}
-                                                 onInput={(e) => {
-                                                     const target = e.currentTarget;
-                                                     const val = target.value;
-                                                     if (val !== '') {
-                                                         const num = parseInt(val, 10);
-                                                         if (num > 3 || target.validity.rangeOverflow) {
-                                                             target.setCustomValidity('Max 3 students');
-                                                             target.reportValidity();
-                                                             setTimeout(() => target.reportValidity(), 10);
-                                                             return;
-                                                         }
-                                                     }
-                                                     target.setCustomValidity('');
-                                                 }}
-                                                 onChange={(e) => {
-                                                     const val = e.target.value;
-                                                     if (val === '') {
-                                                         e.target.setCustomValidity('');
-                                                         setEnrollPeople('');
-                                                     } else {
-                                                         const num = parseInt(val, 10);
-                                                         if (num > 3 || e.target.validity.rangeOverflow) {
-                                                             e.target.setCustomValidity('Max 3 students');
-                                                             e.target.reportValidity();
-                                                             setTimeout(() => e.target.reportValidity(), 10);
-                                                             setEnrollPeople('3');
-                                                         } else if (num < 1) {
-                                                             e.target.setCustomValidity('');
-                                                             setEnrollPeople('');
-                                                         } else {
-                                                             e.target.setCustomValidity('');
-                                                             setEnrollPeople(val);
-                                                         }
-                                                     }
-                                                 }}
+                                                type="number"
+                                                min="1"
+                                                max="3"
+                                                value={enrollPeople}
+                                                onPointerDown={(e) => {
+                                                    const target = e.currentTarget;
+                                                    const rect = target.getBoundingClientRect();
+                                                    const isRightSide = e.clientX > rect.right - 28;
+                                                    const isTopHalf = e.clientY < rect.top + (rect.height / 2);
+                                                    if (isRightSide && isTopHalf) {
+                                                        const current = parseInt(enrollPeople, 10);
+                                                        if (!isNaN(current) && current >= 3) {
+                                                            triggerMaxStudentAlert(target);
+                                                        }
+                                                    }
+                                                }}
+                                                onKeyDown={(e) => {
+                                                    const input = e.currentTarget;
+                                                    if (e.key === "ArrowUp" || e.key === "Up") {
+                                                        e.preventDefault();
+                                                        const current = parseInt(enrollPeople, 10);
+                                                        if (!isNaN(current) && current >= 3) {
+                                                            triggerMaxStudentAlert(input);
+                                                        } else {
+                                                            const next = isNaN(current) ? 1 : Math.min(3, current + 1);
+                                                            setEnrollPeople(next.toString());
+                                                        }
+                                                    } else if (e.key === "ArrowDown" || e.key === "Down") {
+                                                        e.preventDefault();
+                                                        const current = parseInt(enrollPeople, 10);
+                                                        const next = isNaN(current) ? 1 : Math.max(1, current - 1);
+                                                        setEnrollPeople(next.toString());
+                                                    } else if (["e", "E", "+", "-", "."].includes(e.key)) {
+                                                        e.preventDefault();
+                                                    } else if (/^[0-9]$/.test(e.key)) {
+                                                        const start = input.selectionStart ?? 0;
+                                                        const end = input.selectionEnd ?? 0;
+                                                        const currentVal = input.value;
+                                                        const nextValStr = currentVal.slice(0, start) + e.key + currentVal.slice(end);
+                                                        const nextNum = parseInt(nextValStr, 10);
+                                                        if (!isNaN(nextNum) && nextNum > 3) {
+                                                            e.preventDefault();
+                                                            triggerMaxStudentAlert(input);
+                                                        } else if (nextNum < 1) {
+                                                            e.preventDefault();
+                                                        }
+                                                    }
+                                                }}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    if (val === "") {
+                                                        setEnrollPeople("");
+                                                    } else {
+                                                        const num = parseInt(val, 10);
+                                                        if (num > 3) {
+                                                            triggerMaxStudentAlert(e.currentTarget);
+                                                            setEnrollPeople("3");
+                                                        } else if (num < 1) {
+                                                            setEnrollPeople("");
+                                                        } else {
+                                                            setEnrollPeople(val);
+                                                        }
+                                                    }
+                                                }}
                                                 placeholder=""
-                                                className={`w-full bg-slate-50 border border-slate-200 pl-7 pr-1.5 py-2.5 text-xs sm:text-sm font-normal focus:border-indigo-600 focus:ring-0 outline-none rounded-lg transition-all h-[42px] box-border ${enrollPeople ? 'text-slate-500' : 'text-slate-400'}`}
+                                                className={`w-full bg-slate-50 border border-slate-200 pl-7 pr-1.5 py-2.5 text-xs sm:text-sm font-normal focus:border-indigo-600 focus:ring-0 outline-none rounded-lg transition-all h-[42px] box-border ${enrollPeople ? "text-slate-500" : "text-slate-400"}`}
                                             />
                                         </div>
                                     </div>
@@ -1154,7 +1138,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                                         type="submit" 
                                         className="w-full bg-slate-900 text-white font-bold text-xs uppercase tracking-widest py-3.5 rounded-lg hover:bg-indigo-600 transition-colors shadow-lg"
                                     >
-                                        Confirm and Proceed
+                                        CONFIRM AND PAY WITH UPI
                                     </button>
                                 </div>
                             </form>
