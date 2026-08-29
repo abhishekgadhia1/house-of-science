@@ -896,7 +896,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                                             />
                                         </div>
                                     </div>
-                                    <div className="w-[78px] flex-shrink-0">
+                                    <div className="w-[68px] flex-shrink-0">
                                         <div className="h-4 flex items-center mb-1.5">
                                             <label className="text-[9.5px] font-mono text-slate-400 uppercase tracking-wider font-bold truncate leading-none select-none">Students</label>
                                         </div>
@@ -972,7 +972,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                                             />
                                         </div>
                                     </div>
-                                    <div className="w-[84px] flex-shrink-0">
+                                    <div className="w-[74px] flex-shrink-0">
                                         <div className="h-4 flex items-center gap-1 mb-1.5">
                                             <label className="text-[9.5px] font-mono text-slate-400 uppercase tracking-wider font-bold truncate leading-none select-none">Fees</label>
                                             <div className="relative group inline-flex items-center -translate-y-[1px]">
