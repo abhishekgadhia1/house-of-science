@@ -72,6 +72,10 @@ const AREAS = [
 const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) => {
   // Toggle to easily show/hide the home confirmation checkbox
   const SHOW_HOME_CONFIRMATION = false;
+  // Toggle to easily show/hide the fees box in the enrolment dialog (keeps identical UI & dimensions when unhidden)
+  const SHOW_FEES_BOX = false;
+  // Toggle to easily show/hide the QR payment dialog box (directly shows success dialog when false)
+  const SHOW_QR_DIALOG = false;
 
   // Default to TOPIC view as requested
   const [viewMode, setViewMode] = useState<ViewMode>('topic');
@@ -127,7 +131,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
           if (parsed.enrollSlot) setEnrollSlot(parsed.enrollSlot);
           if (parsed.enrollPeople) setEnrollPeople(parsed.enrollPeople);
           if (parsed.enrolledRowNumber !== undefined && parsed.enrolledRowNumber !== null) setEnrolledRowNumber(parsed.enrolledRowNumber);
-          if (parsed.showQrCode) setShowQrCode(true);
+          if (SHOW_QR_DIALOG && parsed.showQrCode) setShowQrCode(true);
         } else {
           sessionStorage.removeItem(PENDING_ENROLLMENT_KEY);
         }
@@ -488,51 +492,57 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
       // Store returned row number in frontend state
       setEnrolledRowNumber(rowNumber);
       
-      // Save full enrollment session with row number before opening UPI app
-      try {
-          sessionStorage.setItem(PENDING_ENROLLMENT_KEY, JSON.stringify({
-              enrollingWorkshop,
-              selectedWorkshop,
-              showQrCode: true,
-              enrollName,
-              enrollPhone,
-              enrollArea,
-              enrollSlot,
-              enrollPeople,
-              calculatedFee,
-              enrolledRowNumber: rowNumber,
-              timestamp: Date.now()
-          }));
-      } catch (err) {
-          console.error("Failed to save enrollment session:", err);
-      }
-
-      // Show QR code step in the enrollment modal
-      setShowQrCode(true);
-
-      // Open UPI payment app dynamically with actual amount
-      const amount = calculatedFee || (selectedWorkshop ? parseFloat(selectedWorkshop.price) : 300);
-      const upiUrl = `upi://pay?pa=abhishek.gadhia@oksbi&pn=Abhishek%20Gadhia&am=${amount}&cu=INR`;
-
-      // Trigger UPI app via invisible link click to prevent mobile browser unloading or discarding page state
-      setTimeout(() => {
+      if (SHOW_QR_DIALOG) {
+          // Save full enrollment session with row number before opening UPI app
           try {
-              const link = document.createElement('a');
-              link.href = upiUrl;
-              link.rel = 'noopener noreferrer';
-              link.style.display = 'none';
-              document.body.appendChild(link);
-              link.click();
-              setTimeout(() => {
-                  if (document.body.contains(link)) {
-                      document.body.removeChild(link);
-                  }
-              }, 1000);
+              sessionStorage.setItem(PENDING_ENROLLMENT_KEY, JSON.stringify({
+                  enrollingWorkshop,
+                  selectedWorkshop,
+                  showQrCode: true,
+                  enrollName,
+                  enrollPhone,
+                  enrollArea,
+                  enrollSlot,
+                  enrollPeople,
+                  calculatedFee,
+                  enrolledRowNumber: rowNumber,
+                  timestamp: Date.now()
+              }));
           } catch (err) {
-              console.error("Failed to open UPI link via anchor:", err);
-              window.location.href = upiUrl;
+              console.error("Failed to save enrollment session:", err);
           }
-      }, 100);
+
+          // Show QR code step in the enrollment modal
+          setShowQrCode(true);
+
+          // Open UPI payment app dynamically with actual amount
+          const amount = calculatedFee || (selectedWorkshop ? parseFloat(selectedWorkshop.price) : 300);
+          const upiUrl = `upi://pay?pa=abhishek.gadhia@oksbi&pn=Abhishek%20Gadhia&am=${amount}&cu=INR`;
+
+          // Trigger UPI app via invisible link click to prevent mobile browser unloading or discarding page state
+          setTimeout(() => {
+              try {
+                  const link = document.createElement('a');
+                  link.href = upiUrl;
+                  link.rel = 'noopener noreferrer';
+                  link.style.display = 'none';
+                  document.body.appendChild(link);
+                  link.click();
+                  setTimeout(() => {
+                      if (document.body.contains(link)) {
+                          document.body.removeChild(link);
+                      }
+                  }, 1000);
+              } catch (err) {
+                  console.error("Failed to open UPI link via anchor:", err);
+                  window.location.href = upiUrl;
+              }
+          }, 100);
+      } else {
+          // Directly show enrolment successful dialog box
+          setShowQrCode(false);
+          setEnrollSuccess(true);
+      }
   };
 
   const handleQrDone = async () => {
@@ -958,7 +968,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                 transition={{ duration: 0.5, ease: "easeOut" }}
                 className="bg-white rounded-xl shadow-2xl border border-slate-200 w-full max-w-sm my-auto relative"
               >
-                {showQrCode && !enrollSuccess && (
+                {SHOW_QR_DIALOG && showQrCode && !enrollSuccess && (
                     <button 
                         type="button"
                         onClick={() => setShowQrCode(false)}
@@ -1112,6 +1122,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                                             />
                                         </div>
                                     </div>
+                                    {SHOW_FEES_BOX && (
                                     <div className="w-[64px] flex-shrink-0">
                                         <div className="h-4 flex items-center gap-1 mb-1.5">
                                             <label className="text-[9.5px] font-mono text-slate-400 uppercase tracking-wider font-bold truncate leading-none select-none">Fees</label>
@@ -1174,6 +1185,7 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                                             </div>
                                         </div>
                                     </div>
+                                    )}
                                 </div>
 
                                 <div ref={areaDropdownRef} className="relative">
@@ -1341,14 +1353,14 @@ const Workshops: React.FC<WorkshopsProps> = ({ initialSubject, initialQuery }) =
                                         disabled={isSubmittingEnroll}
                                         className="w-full bg-slate-900 text-white font-bold text-xs uppercase tracking-widest py-3.5 rounded-lg hover:bg-indigo-600 transition-colors shadow-lg disabled:opacity-75 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                     >
-                                        {isSubmittingEnroll ? 'PROCESSING...' : 'CONFIRM AND PAY WITH UPI'}
+                                        {isSubmittingEnroll ? 'PROCESSING...' : 'CONFIRM'}
                                     </button>
                                 </div>
                             </form>
                         </>
                     )}
 
-                    {showQrCode && !enrollSuccess && (
+                    {SHOW_QR_DIALOG && showQrCode && !enrollSuccess && (
                         <div className="py-2 flex flex-col items-center text-center animate-fade-in">
                             <div className="mb-3 text-center">
                                 <h3 className="text-xl font-mono font-bold text-indigo-600 tracking-wide uppercase">Scan to Complete</h3>
